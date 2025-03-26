@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;net8.0</TargetFrameworks>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+
+</Project>

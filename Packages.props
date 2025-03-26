@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ExtensionVersion>9.0.3</ExtensionVersion>
+    <ExtensionNextVersion>9.3.0</ExtensionNextVersion>
+    <OpenTelemetryVersion>1.11.2</OpenTelemetryVersion>
+    <MSTestVersion>3.0.4</MSTestVersion>
+    <ReqnrollVersion>2.4.0</ReqnrollVersion>
+    <KustoVersion>13.0.2</KustoVersion>
+    <AspNetCoreVersion>2.3.0</AspNetCoreVersion>
+  </PropertyGroup>
+
+  <ItemGroup Label="Extensions">
+    <PackageReference Update="Microsoft.Extensions.Caching.Abstractions" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Caching.Hybrid" Version="$(ExtensionNextVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Binder" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.CommandLine" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Json" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Options" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Logging" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Configuration" Version="$(ExtensionVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Console" Version="$(ExtensionVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Label="OpenTelemetry">
+    <PackageReference Update="Azure.Monitor.OpenTelemetry.Exporter" Version="1.4.0-beta.2" />
+    <PackageReference Update="OpenTelemetry" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Api.ProviderBuilderExtensions" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Exporter.Console" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Exporter.Geneva" Version="1.11.1" />
+    <PackageReference Update="OpenTelemetry.Exporter.InMemory" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Exporter.Jaeger" Version="1.6.0-rc.1" />
+    <PackageReference Update="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.11.2-beta.1" />
+    <PackageReference Update="OpenTelemetry.Exporter.Prometheus.HttpListener" Version="1.11.2-beta.1" />
+    <PackageReference Update="OpenTelemetry.Exporter.Zipkin" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Extensions.Propagators" Version="$(OpenTelemetryVersion)" />
+    <PackageReference Update="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1" />
+    <PackageReference Update="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
+    <PackageReference Update="OpenTelemetry.Instrumentation.Runtime" Version="1.11.1" />
+  </ItemGroup>
+
+  <ItemGroup Label="Misc">
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.115" />
+    <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Label="UnitTests">
+    <PackageReference Update="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Update="FluentAssertions" Version="8.2.0" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
+    <PackageReference Update="MSTest.TestAdapter" Version="$(MSTestVersion)"/>
+    <PackageReference Update="MSTest.TestFramework" Version="$(MSTestVersion)"/>
+    <PackageReference Update="Reqnroll" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.CustomPlugin" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.ExternalData" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.MsTest" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.SpecFlowCompatibility" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.Tools.MsBuild.Generation" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="Reqnroll.xUnit" Version="$(ReqnrollVersion)" />
+    <PackageReference Update="xunit" Version="2.9.3" />
+    <PackageReference Update="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
