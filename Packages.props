@@ -52,6 +52,9 @@
   <ItemGroup Label="Misc">
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Update="Unity" Version="5.11.10" />
+    <PackageReference Update="Unity.Container" Version="5.11.11" />
+    <PackageReference Update="Unity.Microsoft.DependencyInjection" Version="5.11.5" />
   </ItemGroup>
 
   <ItemGroup Label="UnitTests">
