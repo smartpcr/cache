@@ -37,8 +37,8 @@ namespace Common.Cache.Serialization
 #if NET462 || NETSTANDARD2_0
             return MessagePackSerializer.Serialize(item, this.serializerOptions);
 #else
-            var buffer = new ArrayPoolBufferWriter();
-            MemoryPackWriter<ArrayPoolBufferWriter> writer = new(ref buffer, MemoryPackWriterOptionalStatePool.Rent(this.serializerOptions));
+            var buffer = new PoolBufferWriter();
+            MemoryPackWriter<PoolBufferWriter> writer = new(ref buffer, MemoryPackWriterOptionalStatePool.Rent(this.serializerOptions));
             try
             {
                 MemoryPackSerializer.Serialize(ref writer, item);

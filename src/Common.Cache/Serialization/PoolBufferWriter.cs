@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ArrayPoolBufferWriter.cs" company="Microsoft Corp.">
+// <copyright file="PoolBufferWriter.cs" company="Microsoft Corp.">
 //     Copyright (c) Microsoft Corp. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -11,7 +11,7 @@ namespace Common.Cache.Serialization
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
-    public sealed class ArrayPoolBufferWriter : IBufferWriter<byte>, IDisposable
+    public sealed class PoolBufferWriter : IBufferWriter<byte>, IDisposable
     {
         private static readonly ArrayPool<byte> arrayPool = ArrayPool<byte>.Create();
         private byte[] buffer;
@@ -29,17 +29,17 @@ namespace Common.Cache.Serialization
         public int BufferSize => this.buffer.Length;
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ArrayPoolBufferWriter"/> class.
+        /// Creates a new instance of the <see cref="PoolBufferWriter"/> class.
         /// </summary>
-        public ArrayPoolBufferWriter()
+        public PoolBufferWriter()
         {
-            this.buffer = ArrayPoolBufferWriter.arrayPool.Rent(4096);
+            this.buffer = PoolBufferWriter.arrayPool.Rent(4096);
         }
 
         /// <summary>
         /// The destructor.
         /// </summary>
-        ~ArrayPoolBufferWriter()
+        ~PoolBufferWriter()
         {
             this.Dispose(disposing: false);
         }
@@ -65,11 +65,11 @@ namespace Common.Cache.Serialization
             if (requiredCapacity >= currentBufferLength)
             {
                 var newSize = Math.Max(currentBufferLength * 2, requiredCapacity);
-                var newBuffer = ArrayPoolBufferWriter.arrayPool.Rent(newSize);
+                var newBuffer = PoolBufferWriter.arrayPool.Rent(newSize);
                 var bufferSpan = this.buffer.AsSpan();
                 var newBufferSpan = newBuffer.AsSpan();
                 Unsafe.CopyBlockUnaligned(ref MemoryMarshal.GetReference(newBufferSpan), ref MemoryMarshal.GetReference(bufferSpan), (uint)this.bytesWritten);
-                ArrayPoolBufferWriter.arrayPool.Return(this.buffer);
+                PoolBufferWriter.arrayPool.Return(this.buffer);
                 this.buffer = newBuffer;
             }
 
@@ -113,7 +113,7 @@ namespace Common.Cache.Serialization
             {
                 if (disposing)
                 {
-                    ArrayPoolBufferWriter.arrayPool.Return(this.buffer);
+                    PoolBufferWriter.arrayPool.Return(this.buffer);
                 }
 
                 this.disposedValue = true;

@@ -18,7 +18,7 @@ namespace Common.Cache
     using OpenTelemetry.Trace;
 
     /// <summary>
-    /// L2 cache implementation using CSV files.
+    /// L2 cache implementation using files under cluster shared volume.
     /// </summary>
     public class CsvCache : IDistributedCache
     {
@@ -46,16 +46,19 @@ namespace Common.Cache
             try
             {
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
+                span.SetAttribute("cacheFile", cacheFile);
                 if (File.Exists(cacheFile))
                 {
                     if (File.GetCreationTimeUtc(cacheFile).Add(this.cacheSettings.TimeToLive) < this.clock.UtcNow)
                     {
+                        span.SetAttribute("expired", true);
                         this.diagnosticsConfig.OnCacheExpired(key);
                         return null;
                     }
                 }
                 else
                 {
+                    span.SetAttribute("found", false);
                     this.diagnosticsConfig.OnCacheMiss(key);
                     return null;
                 }
@@ -66,6 +69,8 @@ namespace Common.Cache
                 var fileContent = await File.ReadAllBytesAsync(cacheFile, token);
 #endif
 
+                span.SetAttribute("found", true);
+                span.SetAttribute("size", fileContent.Length);
                 this.diagnosticsConfig.OnCacheHit(key);
                 return fileContent;
             }
@@ -92,8 +97,10 @@ namespace Common.Cache
                 var size = (int)Math.Ceiling((double)value.Length / 1_000_000); // MB
                 span.SetAttribute("size", size);
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
+                span.SetAttribute("cacheFile", cacheFile);
                 if (File.Exists(cacheFile))
                 {
+                    span.SetAttribute("update", true);
                     File.Delete(cacheFile);
                 }
 
@@ -124,12 +131,15 @@ namespace Common.Cache
             try
             {
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
+                span.SetAttribute("cacheFile", cacheFile);
                 if (File.Exists(cacheFile))
                 {
+                    span.SetAttribute("found", true);
                     File.SetCreationTimeUtc(cacheFile, this.clock.UtcNow.UtcDateTime);
                 }
                 else
                 {
+                    span.SetAttribute("found", false);
                     this.diagnosticsConfig.OnCacheMiss(key);
                 }
             }
@@ -155,8 +165,10 @@ namespace Common.Cache
             try
             {
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
+                span.SetAttribute("cacheFile", cacheFile);
                 if (File.Exists(cacheFile))
                 {
+                    span.SetAttribute("found", true);
                     File.Delete(cacheFile);
                 }
             }
