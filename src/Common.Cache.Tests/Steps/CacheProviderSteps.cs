@@ -1,0 +1,124 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="CacheSteps.cs" company="Microsoft Corp.">
+//     Copyright (c) Microsoft Corp. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Common.Cache.Tests.Steps
+{
+    using System;
+    using System.Threading.Tasks;
+    using Common.Cache.Tests.Hooks;
+    using FluentAssertions;
+    using Microsoft.Extensions.Caching.Distributed;
+    using Microsoft.Extensions.Caching.Memory;
+    using Microsoft.Extensions.DependencyInjection;
+    using Reqnroll;
+
+    [Binding]
+    public class CacheProviderSteps
+    {
+        private readonly ScenarioContext context;
+        private readonly IReqnrollOutputHelper outputHelper;
+
+        public CacheProviderSteps(ScenarioContext scenarioContext, IReqnrollOutputHelper outputHelper)
+        {
+            this.context = scenarioContext;
+            this.outputHelper = outputHelper;
+        }
+
+        [Given(@"cache provider {string} is registered")]
+
+        public void GivenCacheOfTypeIsRegistered(string cacheProvider)
+        {
+            Enum.TryParse(cacheProvider, true, out CacheProviderType cacheProviderType).Should().BeTrue();
+
+            var services = this.context.Get<IServiceCollection>();
+            var clock = this.context.Get<FakeTime>();
+
+            switch (cacheProviderType)
+            {
+                case CacheProviderType.Memory:
+                    var l1 = new MemoryCache(new MemoryCacheOptions { Clock = clock });
+                    services.AddSingleton<IMemoryCache>(l1);
+                    break;
+                case CacheProviderType.Csv:
+                    var l2 = new CsvCache(services.BuildServiceProvider());
+                    services.AddSingleton<IDistributedCache>(l2);
+                    break;
+                case CacheProviderType.Hybrid:
+                    var memCache = new MemoryCache(new MemoryCacheOptions { Clock = clock });
+                    services.AddSingleton<IMemoryCache>(memCache);
+                    var csvCache = new CsvCache(services.BuildServiceProvider());
+                    services.AddSingleton<IDistributedCache>(csvCache);
+                    services.AddHybridCache();
+                    break;
+            }
+
+            var cacheWrapper = new CacheWrapper(this.context, cacheProviderType);
+            this.context.Set(cacheWrapper);
+        }
+
+        [Given(@"store a cached item with ttl of {int} minutes")]
+        public async Task GivenACachedItem(int ttlMin, Table table)
+        {
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var key = table.Rows[0]["Key"];
+            var size = int.Parse(table.Rows[0]["Size"]);
+            var expected = new byte[size];
+            new Random().NextBytes(expected);
+            this.context.Set(expected, "expected");
+
+            await cacheWrapper.RemoveAsync(key);
+            var found = await cacheWrapper.GetAsync(key);
+            found.Should().BeNull();
+
+            await cacheWrapper.SetAsync(key, expected, TimeSpan.FromMinutes(ttlMin));
+        }
+
+        [Then(@"I can validate the cached item")]
+        public async Task ThenCachedItemShouldBeAddedToCache(Table table)
+        {
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var key = table.Rows[0]["Key"];
+            var size = int.Parse(table.Rows[0]["Size"]);
+            var expected = this.context.Get<byte[]>("expected");
+
+            var actual = await cacheWrapper.GetAsync(key);
+            actual.Should().NotBeNull();
+            actual.Length.Should().Be(size);
+            actual.Should().BeSameAs(expected);
+        }
+
+        [Then("cached item should still be valid after {int} minutes")]
+        public async Task ThenCachedItemShouldStillBeValidAfterMinutes(int waitMinutes, DataTable table)
+        {
+            var clock = this.context.Get<FakeTime>();
+            clock.Add(TimeSpan.FromMinutes(waitMinutes));
+
+            var key = table.Rows[0]["Key"];
+            var size = int.Parse(table.Rows[0]["Size"]);
+            var expected = this.context.Get<byte[]>("expected");
+
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var actual = await cacheWrapper.GetAsync(key);
+            actual.Should().NotBeNull();
+            actual.Length.Should().Be(size);
+            actual.Should().BeSameAs(expected);
+            this.outputHelper.WriteLine("cached item not yet expired");
+        }
+
+        [Then("cached item should be expired after {int} minutes")]
+        public async Task ThenCachedItemShouldBeExpiredAfterMinutes(int waitMinutes, DataTable table)
+        {
+            var clock = this.context.Get<FakeTime>();
+            clock.Add(TimeSpan.FromMinutes(waitMinutes));
+
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var key = table.Rows[0]["Key"];
+            var actual = await cacheWrapper.GetAsync(key);
+            actual.Should().BeNull();
+            this.outputHelper.WriteLine("expiration validated");
+        }
+    }
+}

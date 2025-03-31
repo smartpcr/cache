@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Unity"/>
     <PackageReference Include="Unity.Container"/>
     <PackageReference Include="Unity.Microsoft.DependencyInjection"/>
@@ -19,5 +20,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Cache\Common.Cache.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="reqnroll.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

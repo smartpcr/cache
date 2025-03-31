@@ -6,7 +6,11 @@
 
 namespace Common.Cache.Tests.Hooks
 {
+    using System;
+    using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using OpenTelemetry.Lib;
     using Reqnroll;
     using Reqnroll.Infrastructure;
     using Reqnroll.Microsoft.Extensions.DependencyInjection;
@@ -15,12 +19,22 @@ namespace Common.Cache.Tests.Hooks
     [Binding]
     public class TestHook
     {
+        internal const string ServiceName = "bvt";
+        internal static readonly string OtlpEndpoint = "http://127.0.0.1:4320";
+        internal static readonly Dictionary<string, string> OtelConfig = OtelSettings.GetOtelConfigSettings(true, OtlpEndpoint, LogLevel.Debug);
+        internal static readonly DiagnosticsConfig DiagConfig = new DiagnosticsConfig(OtelConfig, ServiceName);
+
+        private static readonly Lazy<ServiceCollection> services = new(() =>
+        {
+            var serviceCollection = new ServiceCollection();
+            return serviceCollection;
+        });
+
         [ScenarioDependencies]
         public static IServiceCollection GetServiceCollection()
         {
-            var services = new ServiceCollection();
-            services.AddScoped<IReqnrollOutputHelper, ReqnrollOutputHelper>();
-            return services;
+            services.Value.AddScoped<IReqnrollOutputHelper, ReqnrollOutputHelper>();
+            return services.Value;
         }
 
         [ScenarioDependencies]

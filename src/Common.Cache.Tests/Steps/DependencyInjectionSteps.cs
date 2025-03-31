@@ -6,19 +6,13 @@
 
 namespace Common.Cache.Tests.Steps
 {
-    using System;
     using Common.Cache.Tests.Hooks;
     using FluentAssertions;
-    using Microsoft.Extensions.Caching.Distributed;
     using Microsoft.Extensions.Caching.Hybrid;
-    using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
     using Reqnroll;
     using Unity;
     using Unity.Lifetime;
-    using Unity.Microsoft.DependencyInjection;
 
     [Binding]
     public class DependencyInjectionSteps
