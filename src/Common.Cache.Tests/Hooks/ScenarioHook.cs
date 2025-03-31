@@ -7,6 +7,7 @@
 namespace Common.Cache.Tests.Hooks
 {
     using System;
+    using System.IO;
     using System.Linq;
     using FluentAssertions;
     using Microsoft.Extensions.DependencyInjection;
@@ -98,6 +99,28 @@ namespace Common.Cache.Tests.Hooks
             var configuration = services.AddConfiguration();
             scenarioContext.Set(configuration);
             scenarioContext.Set(envName, "envName");
+
+            var cacheSettings = configuration.GetConfiguredSettings<CacheSettings>();
+            if (!string.IsNullOrEmpty(cacheSettings.CacheFolder) && Directory.Exists(cacheSettings.CacheFolder))
+            {
+                var files = Directory.GetFiles(cacheSettings.CacheFolder);
+                foreach (var file in files)
+                {
+                    outputHelper.WriteLine($"Deleting file: {file}");
+                    File.Delete(file);
+                }
+            }
+
+            var cvsCacheSettings = configuration.GetConfiguredSettings<CsvCacheSettings>();
+            if (!string.IsNullOrEmpty(cvsCacheSettings.CacheFolder) && Directory.Exists(cvsCacheSettings.CacheFolder))
+            {
+                var files = Directory.GetFiles(cvsCacheSettings.CacheFolder);
+                foreach (var file in files)
+                {
+                    outputHelper.WriteLine($"Deleting file: {file}");
+                    File.Delete(file);
+                }
+            }
         }
 
     }

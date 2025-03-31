@@ -76,6 +76,20 @@ namespace Common.Cache.Tests.Steps
             await cacheWrapper.SetAsync(key, expected, TimeSpan.FromMinutes(ttlMin));
         }
 
+        [Given("store a customer with ttl of {int} minutes")]
+        public async Task GivenStoreACustomerWithTtlOfMinutes(int ttl, DataTable dataTable)
+        {
+            var key = dataTable.Rows[0]["Key"];
+            var customer = dataTable.CreateInstance<Customer>();
+
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            await cacheWrapper.RemoveAsync(key);
+            var found = await cacheWrapper.GetAsync<Customer>(key);
+            found.Should().BeNull();
+
+            await cacheWrapper.SetAsync(key, customer, TimeSpan.FromMinutes(ttl));
+        }
+
         [Then(@"I can validate the cached item")]
         public async Task ThenCachedItemShouldBeAddedToCache(Table table)
         {
@@ -87,7 +101,7 @@ namespace Common.Cache.Tests.Steps
             var actual = await cacheWrapper.GetAsync(key);
             actual.Should().NotBeNull();
             actual.Length.Should().Be(size);
-            actual.Should().BeSameAs(expected);
+            actual.Should().BeEquivalentTo(expected);
         }
 
         [Then("cached item should still be valid after {int} minutes")]
@@ -104,7 +118,7 @@ namespace Common.Cache.Tests.Steps
             var actual = await cacheWrapper.GetAsync(key);
             actual.Should().NotBeNull();
             actual.Length.Should().Be(size);
-            actual.Should().BeSameAs(expected);
+            actual.Should().BeEquivalentTo(expected);
             this.outputHelper.WriteLine("cached item not yet expired");
         }
 
@@ -119,6 +133,43 @@ namespace Common.Cache.Tests.Steps
             var actual = await cacheWrapper.GetAsync(key);
             actual.Should().BeNull();
             this.outputHelper.WriteLine("expiration validated");
+        }
+
+        [Then("I can validate customer")]
+        public async Task ThenICanValidateCustomer(DataTable dataTable)
+        {
+            var key = dataTable.Rows[0]["Key"];
+            var expectedCustomer = dataTable.CreateInstance<Customer>();
+
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+
+            var actualCustomer = await cacheWrapper.GetAsync<Customer>(key);
+            actualCustomer.Should().NotBeNull();
+            actualCustomer.Should().BeEquivalentTo(expectedCustomer);
+        }
+
+        [Then("cached customer should still be valid after {int} minutes")]
+        public async Task ThenCachedCustomerShouldStillBeValidAfterMinutes(int waitMinutes, DataTable dataTable)
+        {
+            var clock = this.context.Get<FakeTime>();
+            clock.Add(TimeSpan.FromMinutes(waitMinutes));
+
+            var key = dataTable.Rows[0]["Key"];
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var actualCustomer = await cacheWrapper.GetAsync<Customer>(key);
+            actualCustomer.Should().NotBeNull();
+        }
+
+        [Then("cached customer should be expired after {int} minutes")]
+        public async Task ThenCachedCustomerShouldBeExpiredAfterMinutes(int waitMinutes, DataTable dataTable)
+        {
+            var clock = this.context.Get<FakeTime>();
+            clock.Add(TimeSpan.FromMinutes(waitMinutes));
+
+            var key = dataTable.Rows[0]["Key"];
+            var cacheWrapper = this.context.Get<CacheWrapper>();
+            var actualCustomer = await cacheWrapper.GetAsync<Customer>(key);
+            actualCustomer.Should().BeNull();
         }
     }
 }

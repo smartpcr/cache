@@ -20,7 +20,7 @@ namespace Common.Cache.Tests.Steps
         private readonly CacheProviderType cacheProviderType;
         private readonly ICachedItemSerializer serializer;
         private readonly IServiceProvider serviceProvider;
-        private readonly byte[] nullValue = Array.Empty<byte>();
+        private readonly byte[]? nullValue = null;
 
         public CacheWrapper(ScenarioContext context, CacheProviderType cacheProviderType)
         {
@@ -44,7 +44,7 @@ namespace Common.Cache.Tests.Steps
                     break;
                 case CacheProviderType.Hybrid:
                     var hybridCache = this.serviceProvider.GetRequiredService<HybridCache>();
-                    result = await hybridCache.GetOrCreateAsync<byte[]>(key, _ => new ValueTask<byte[]>(this.nullValue));
+                    result = await hybridCache.GetOrCreateAsync<byte[]>(key, null);
                     break;
             }
 
@@ -82,14 +82,14 @@ namespace Common.Cache.Tests.Steps
                     var memoryCache = this.serviceProvider.GetRequiredService<IMemoryCache>();
                     memoryCache.Set(key, value, new MemoryCacheEntryOptions()
                     {
-                        SlidingExpiration = ttl
+                        AbsoluteExpirationRelativeToNow = ttl
                     });
                     break;
                 case CacheProviderType.Csv:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     await distributedCache.SetAsync(key, value, new DistributedCacheEntryOptions()
                     {
-                        SlidingExpiration = ttl
+                        AbsoluteExpirationRelativeToNow = ttl
                     });
                     break;
                 case CacheProviderType.Hybrid:
@@ -102,22 +102,31 @@ namespace Common.Cache.Tests.Steps
             }
         }
 
-        public async Task SetAsync<T>(string key, T value) where T : class, new()
+        public async Task SetAsync<T>(string key, T value, TimeSpan ttl)
         {
             switch (this.cacheProviderType)
             {
                 case CacheProviderType.Memory:
                     var memoryCache = this.serviceProvider.GetRequiredService<IMemoryCache>();
-                    memoryCache.Set(key, value);
+                    memoryCache.Set(key, value, new MemoryCacheEntryOptions()
+                    {
+                        AbsoluteExpirationRelativeToNow = ttl
+                    });
                     break;
                 case CacheProviderType.Csv:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     var bytes = await this.serializer.SerializeAsync(value);
-                    await distributedCache.SetAsync(key, bytes);
+                    await distributedCache.SetAsync(key, bytes, new DistributedCacheEntryOptions()
+                    {
+                        AbsoluteExpirationRelativeToNow = ttl
+                    });
                     break;
                 case CacheProviderType.Hybrid:
                     var hybridCache = this.serviceProvider.GetRequiredService<HybridCache>();
-                    await hybridCache.SetAsync(key, value);
+                    await hybridCache.SetAsync(key, value, new HybridCacheEntryOptions()
+                    {
+                        Expiration = ttl
+                    });
                     break;
             }
         }

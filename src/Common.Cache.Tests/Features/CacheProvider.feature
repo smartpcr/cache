@@ -1,7 +1,7 @@
-Feature: distributed cache
+Feature: cache provider
 
   @prod
-  Scenario: simple memory cache scenario
+  Scenario: simple cache scenario
     Given cache provider "<CacheProvider>" is registered
     Given store a cached item with ttl of 5 minutes
       | Key   | Size   |
@@ -26,7 +26,23 @@ Feature: distributed cache
     | Csv           | key_2 | 128   |
     | Csv           | key_3 | 1024  |
     | Csv           | key_4 | 16348 |
-    | Hybrid        | key_1 | 0     |
-    | Hybrid        | key_2 | 128   |
-    | Hybrid        | key_3 | 1024  |
-    | Hybrid        | key_4 | 16348 |
+
+  @prod
+  Scenario: hybrid cache scenario
+    Given cache provider "Hybrid" is registered
+    Given store a customer with ttl of 5 minutes
+      | Key   | Id   | FirstName   | LastName   | BirthDay   |
+      | <Key> | <Id> | <FirstName> | <LastName> | <BirthDay> |
+    Then I can validate customer
+      | Key   | Id   | FirstName   | LastName   | BirthDay   |
+      | <Key> | <Id> | <FirstName> | <LastName> | <BirthDay> |
+    And cached customer should still be valid after 4 minutes
+      | Key   |
+      | <Key> |
+    And cached customer should be expired after 2 minutes
+      | Key   |
+      | <Key> |
+
+  Examples:
+    | Key  | Id  | FirstName | LastName | BirthDay   |
+    | C001 | 100 | Joe       | Doe      | 1990-01-01 |

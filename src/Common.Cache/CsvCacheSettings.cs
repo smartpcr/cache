@@ -13,6 +13,7 @@ namespace Common.Cache
         /// <summary>
         /// Fallback cache folder for local cache.
         /// </summary>
+        [FolderExistsValidation]
         public string CacheFolder { get; set; }
 
         /// <summary>

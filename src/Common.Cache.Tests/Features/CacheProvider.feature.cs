@@ -19,21 +19,21 @@ namespace Common.Cache.Tests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class DistributedCacheFeature : object, Xunit.IClassFixture<DistributedCacheFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class CacheProviderFeature : object, Xunit.IClassFixture<CacheProviderFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "distributed cache", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "cache provider", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
 #line 1 "CacheProvider.feature"
 #line hidden
         
-        public DistributedCacheFeature(DistributedCacheFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public CacheProviderFeature(CacheProviderFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -92,9 +92,9 @@ namespace Common.Cache.Tests.Features
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableTheoryAttribute(DisplayName="simple memory cache scenario")]
-        [Xunit.TraitAttribute("FeatureTitle", "distributed cache")]
-        [Xunit.TraitAttribute("Description", "simple memory cache scenario")]
+        [Xunit.SkippableTheoryAttribute(DisplayName="simple cache scenario")]
+        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
+        [Xunit.TraitAttribute("Description", "simple cache scenario")]
         [Xunit.TraitAttribute("Category", "prod")]
         [Xunit.InlineDataAttribute("Memory", "key_1", "0", new string[0])]
         [Xunit.InlineDataAttribute("Memory", "key_2", "128", new string[0])]
@@ -104,11 +104,7 @@ namespace Common.Cache.Tests.Features
         [Xunit.InlineDataAttribute("Csv", "key_2", "128", new string[0])]
         [Xunit.InlineDataAttribute("Csv", "key_3", "1024", new string[0])]
         [Xunit.InlineDataAttribute("Csv", "key_4", "16348", new string[0])]
-        [Xunit.InlineDataAttribute("Hybrid", "key_1", "0", new string[0])]
-        [Xunit.InlineDataAttribute("Hybrid", "key_2", "128", new string[0])]
-        [Xunit.InlineDataAttribute("Hybrid", "key_3", "1024", new string[0])]
-        [Xunit.InlineDataAttribute("Hybrid", "key_4", "16348", new string[0])]
-        public async System.Threading.Tasks.Task SimpleMemoryCacheScenario(string cacheProvider, string key, string size, string[] exampleTags)
+        public async System.Threading.Tasks.Task SimpleCacheScenario(string cacheProvider, string key, string size, string[] exampleTags)
         {
             string[] @__tags = new string[] {
                     "prod"};
@@ -121,7 +117,7 @@ namespace Common.Cache.Tests.Features
             argumentsOfScenario.Add("CacheProvider", cacheProvider);
             argumentsOfScenario.Add("key", key);
             argumentsOfScenario.Add("size", size);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("simple memory cache scenario", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("simple cache scenario", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 4
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -175,6 +171,88 @@ namespace Common.Cache.Tests.Features
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableTheoryAttribute(DisplayName="hybrid cache scenario")]
+        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
+        [Xunit.TraitAttribute("Description", "hybrid cache scenario")]
+        [Xunit.TraitAttribute("Category", "prod")]
+        [Xunit.InlineDataAttribute("C001", "100", "Joe", "Doe", "1990-01-01", new string[0])]
+        public async System.Threading.Tasks.Task HybridCacheScenario(string key, string id, string firstName, string lastName, string birthDay, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "prod"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("Key", key);
+            argumentsOfScenario.Add("Id", id);
+            argumentsOfScenario.Add("FirstName", firstName);
+            argumentsOfScenario.Add("LastName", lastName);
+            argumentsOfScenario.Add("BirthDay", birthDay);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("hybrid cache scenario", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 31
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 32
+    await testRunner.GivenAsync("cache provider \"Hybrid\" is registered", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                            "Key",
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "BirthDay"});
+                table5.AddRow(new string[] {
+                            string.Format("{0}", key),
+                            string.Format("{0}", id),
+                            string.Format("{0}", firstName),
+                            string.Format("{0}", lastName),
+                            string.Format("{0}", birthDay)});
+#line 33
+    await testRunner.GivenAsync("store a customer with ttl of 5 minutes", ((string)(null)), table5, "Given ");
+#line hidden
+                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
+                            "Key",
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "BirthDay"});
+                table6.AddRow(new string[] {
+                            string.Format("{0}", key),
+                            string.Format("{0}", id),
+                            string.Format("{0}", firstName),
+                            string.Format("{0}", lastName),
+                            string.Format("{0}", birthDay)});
+#line 36
+    await testRunner.ThenAsync("I can validate customer", ((string)(null)), table6, "Then ");
+#line hidden
+                global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
+                            "Key"});
+                table7.AddRow(new string[] {
+                            string.Format("{0}", key)});
+#line 39
+    await testRunner.AndAsync("cached customer should still be valid after 4 minutes", ((string)(null)), table7, "And ");
+#line hidden
+                global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
+                            "Key"});
+                table8.AddRow(new string[] {
+                            string.Format("{0}", key)});
+#line 42
+    await testRunner.AndAsync("cached customer should be expired after 2 minutes", ((string)(null)), table8, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime
@@ -182,12 +260,12 @@ namespace Common.Cache.Tests.Features
             
             async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await DistributedCacheFeature.FeatureSetupAsync();
+                await CacheProviderFeature.FeatureSetupAsync();
             }
             
             async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await DistributedCacheFeature.FeatureTearDownAsync();
+                await CacheProviderFeature.FeatureTearDownAsync();
             }
         }
     }

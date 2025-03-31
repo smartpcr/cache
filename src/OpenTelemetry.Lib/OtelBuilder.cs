@@ -283,6 +283,7 @@ public static class OtelBuilder
                 // "process.runtime.dotnet.gc.objects.size" are supported
                 meterProviderBuilder.AddRuntimeInstrumentation();
                 var meter = new Meter(serviceName);
+#if windows
                 var performanceMetrics = new PerformanceMetrics();
                 List<KeyValuePair<string, object?>> tags = new List<KeyValuePair<string, object?>>()
                 {
@@ -408,6 +409,7 @@ public static class OtelBuilder
                         "count",
                         "locks held over 1hr",
                         tags);
+#endif
             }
 
             if (!configDict.TryGetValue(OtelSettings.ExportIntervalParameter, out var exportInterval))

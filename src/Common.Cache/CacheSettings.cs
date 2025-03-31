@@ -38,6 +38,11 @@ namespace Common.Cache
     {
         protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
+            if (string.IsNullOrWhiteSpace(value?.ToString()))
+            {
+                return new ValidationResult("The folder path cannot be null or empty.");
+            }
+
             if (value is string folderPath && !Directory.Exists(folderPath))
             {
                 return new ValidationResult($"The folder specified in '{folderPath}' does not exist.");
