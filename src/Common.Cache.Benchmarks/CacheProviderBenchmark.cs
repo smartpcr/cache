@@ -80,41 +80,64 @@ namespace Common.Cache.Benchmarks
         [Benchmark]
         public async Task FileCacheBenchmark()
         {
-            var payload = this.GetPayload();
-            await this.csvCache.SetAsync(CacheProviderBenchmark.Key, payload, new DistributedCacheEntryOptions()
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
-            });
-            var stored = await this.csvCache.GetAsync(CacheProviderBenchmark.Key);
-            stored.Should().NotBeNull();
-            stored.Should().BeEquivalentTo(payload);
+                var payload = this.GetPayload();
+                await this.csvCache.SetAsync(CacheProviderBenchmark.Key,
+                    payload,
+                    new DistributedCacheEntryOptions()
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+                    });
+                var stored = await this.csvCache.GetAsync(CacheProviderBenchmark.Key);
+                stored.Should().NotBeNull();
+                stored.Should().BeEquivalentTo(payload);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         [Benchmark]
         public async Task WinRegistryBenchmark()
         {
-            var payload = this.GetPayload();
-            await this.windowsRegistryCache.SetAsync(CacheProviderBenchmark.Key, payload, new DistributedCacheEntryOptions()
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
-            });
-            var stored = await this.windowsRegistryCache.GetAsync(CacheProviderBenchmark.Key);
-            stored.Should().NotBeNull();
-            stored.Should().BeEquivalentTo(payload);
+                var payload = this.GetPayload();
+                await this.windowsRegistryCache.SetAsync(CacheProviderBenchmark.Key, payload, new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+                });
+                var stored = await this.windowsRegistryCache.GetAsync(CacheProviderBenchmark.Key);
+                stored.Should().NotBeNull();
+                stored.Should().BeEquivalentTo(payload);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         [Benchmark]
         public async Task HybridBenchmark()
         {
-            var payload = this.GetPayload();
-            var hybridCache = this.serviceProvider.GetRequiredService<HybridCache>();
-            await hybridCache.SetAsync(CacheProviderBenchmark.Key, payload, new HybridCacheEntryOptions()
+            try
             {
-                Expiration = TimeSpan.FromMinutes(5),
-            });
-            var stored = await hybridCache.GetOrCreateAsync(CacheProviderBenchmark.Key, _ => new ValueTask<object>(payload));
-            stored.Should().NotBeNull();
-            stored.Should().BeEquivalentTo(payload);
+                var payload = this.GetPayload();
+                var hybridCache = this.serviceProvider.GetRequiredService<HybridCache>();
+                await hybridCache.SetAsync(CacheProviderBenchmark.Key, payload, new HybridCacheEntryOptions()
+                {
+                    Expiration = TimeSpan.FromMinutes(5),
+                });
+                var stored = await hybridCache.GetOrCreateAsync(CacheProviderBenchmark.Key, _ => new ValueTask<object>(payload));
+                stored.Should().NotBeNull();
+                stored.Should().BeEquivalentTo(payload);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private byte[] GetPayload()

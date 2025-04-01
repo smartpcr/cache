@@ -105,6 +105,10 @@ namespace Common.Cache
             {
                 absoluteExpiration = options.AbsoluteExpiration.Value!.ToUniversalTime().DateTime;
             }
+            else
+            {
+                absoluteExpiration = this.clock.UtcNow.DateTime.Add(options.SlidingExpiration ?? this.cacheSettings.Ttl);
+            }
 
             var absExpirationTicks = absoluteExpiration?.Ticks ?? 0;
             var slidingTicks = options.SlidingExpiration?.Ticks ?? 0;

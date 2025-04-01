@@ -6,6 +6,7 @@
 
 namespace Common.Cache
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
     using Microsoft.Win32;
 
@@ -13,6 +14,8 @@ namespace Common.Cache
     {
         [RegistryPathValidation]
         public string RegistryPath { get; set; }
+
+        public TimeSpan Ttl { get; set; } = TimeSpan.FromMinutes(15);
     }
 
     public class RegistryPathValidationAttribute : ValidationAttribute
