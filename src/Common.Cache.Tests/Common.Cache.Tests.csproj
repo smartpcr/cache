@@ -19,6 +19,12 @@
     <PackageReference Include="Unity.Container"/>
     <PackageReference Include="Unity.Microsoft.DependencyInjection"/>
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net462' and '$(TargetFramework)' != 'netstandard2.0'">
+    <PackageReference Include="MemoryPack" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="MessagePack" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Cache\Common.Cache.csproj" />

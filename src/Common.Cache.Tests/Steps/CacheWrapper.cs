@@ -39,6 +39,7 @@ namespace Common.Cache.Tests.Steps
                     result = memoryCache.Get<byte[]>(key);
                     break;
                 case CacheProviderType.Csv:
+                case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     result = await distributedCache.GetAsync(key);
                     break;
@@ -61,6 +62,7 @@ namespace Common.Cache.Tests.Steps
                     result = memoryCache.Get<T>(key);
                     break;
                 case CacheProviderType.Csv:
+                case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     var stored = await distributedCache.GetAsync(key);
                     result = this.serializer.Deserialize<T>(stored!);
@@ -86,6 +88,7 @@ namespace Common.Cache.Tests.Steps
                     });
                     break;
                 case CacheProviderType.Csv:
+                case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     await distributedCache.SetAsync(key, value, new DistributedCacheEntryOptions()
                     {
@@ -114,6 +117,7 @@ namespace Common.Cache.Tests.Steps
                     });
                     break;
                 case CacheProviderType.Csv:
+                case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     var bytes = await this.serializer.SerializeAsync(value);
                     await distributedCache.SetAsync(key, bytes, new DistributedCacheEntryOptions()
@@ -140,6 +144,7 @@ namespace Common.Cache.Tests.Steps
                     memoryCache.Remove(key);
                     break;
                 case CacheProviderType.Csv:
+                case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     await distributedCache.RemoveAsync(key);
                     break;

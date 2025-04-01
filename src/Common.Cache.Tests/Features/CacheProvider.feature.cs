@@ -100,10 +100,12 @@ namespace Common.Cache.Tests.Features
         [Xunit.InlineDataAttribute("Memory", "key_2", "128", new string[0])]
         [Xunit.InlineDataAttribute("Memory", "key_3", "1024", new string[0])]
         [Xunit.InlineDataAttribute("Memory", "key_4", "16348", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_1", "0", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_2", "128", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_3", "1024", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_4", "16348", new string[0])]
+        [Xunit.InlineDataAttribute("Memory", "Key_5", "5242880", new string[0])]
+        [Xunit.InlineDataAttribute("Csv", "key_6", "0", new string[0])]
+        [Xunit.InlineDataAttribute("Csv", "key_7", "128", new string[0])]
+        [Xunit.InlineDataAttribute("Csv", "key_8", "1024", new string[0])]
+        [Xunit.InlineDataAttribute("Csv", "key_9", "16348", new string[0])]
+        [Xunit.InlineDataAttribute("Csv", "Key_10", "5242880", new string[0])]
         public async System.Threading.Tasks.Task SimpleCacheScenario(string cacheProvider, string key, string size, string[] exampleTags)
         {
             string[] @__tags = new string[] {
@@ -192,7 +194,7 @@ namespace Common.Cache.Tests.Features
             argumentsOfScenario.Add("LastName", lastName);
             argumentsOfScenario.Add("BirthDay", birthDay);
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("hybrid cache scenario", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 31
+#line 33
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -202,7 +204,7 @@ namespace Common.Cache.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 32
+#line 34
     await testRunner.GivenAsync("cache provider \"Hybrid\" is registered", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
                 global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
@@ -217,7 +219,7 @@ namespace Common.Cache.Tests.Features
                             string.Format("{0}", firstName),
                             string.Format("{0}", lastName),
                             string.Format("{0}", birthDay)});
-#line 33
+#line 35
     await testRunner.GivenAsync("store a customer with ttl of 5 minutes", ((string)(null)), table5, "Given ");
 #line hidden
                 global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
@@ -232,22 +234,104 @@ namespace Common.Cache.Tests.Features
                             string.Format("{0}", firstName),
                             string.Format("{0}", lastName),
                             string.Format("{0}", birthDay)});
-#line 36
+#line 38
     await testRunner.ThenAsync("I can validate customer", ((string)(null)), table6, "Then ");
 #line hidden
                 global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
                             "Key"});
                 table7.AddRow(new string[] {
                             string.Format("{0}", key)});
-#line 39
+#line 41
     await testRunner.AndAsync("cached customer should still be valid after 4 minutes", ((string)(null)), table7, "And ");
 #line hidden
                 global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
                             "Key"});
                 table8.AddRow(new string[] {
                             string.Format("{0}", key)});
-#line 42
+#line 44
     await testRunner.AndAsync("cached customer should be expired after 2 minutes", ((string)(null)), table8, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="windows registry cache scenario")]
+        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
+        [Xunit.TraitAttribute("Description", "windows registry cache scenario")]
+        [Xunit.TraitAttribute("Category", "prod")]
+        [Xunit.InlineDataAttribute("C021", "123", "Joe", "Doe", "1990-01-01", new string[0])]
+        public async System.Threading.Tasks.Task WindowsRegistryCacheScenario(string key, string id, string firstName, string lastName, string birthDay, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "prod"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("Key", key);
+            argumentsOfScenario.Add("Id", id);
+            argumentsOfScenario.Add("FirstName", firstName);
+            argumentsOfScenario.Add("LastName", lastName);
+            argumentsOfScenario.Add("BirthDay", birthDay);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("windows registry cache scenario", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 53
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 54
+    await testRunner.GivenAsync("cache provider \"WindowsRegistry\" is registered", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
+                            "Key",
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "BirthDay"});
+                table9.AddRow(new string[] {
+                            string.Format("{0}", key),
+                            string.Format("{0}", id),
+                            string.Format("{0}", firstName),
+                            string.Format("{0}", lastName),
+                            string.Format("{0}", birthDay)});
+#line 55
+    await testRunner.GivenAsync("store a customer with ttl of 5 minutes", ((string)(null)), table9, "Given ");
+#line hidden
+                global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
+                            "Key",
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "BirthDay"});
+                table10.AddRow(new string[] {
+                            string.Format("{0}", key),
+                            string.Format("{0}", id),
+                            string.Format("{0}", firstName),
+                            string.Format("{0}", lastName),
+                            string.Format("{0}", birthDay)});
+#line 58
+    await testRunner.ThenAsync("I can validate customer", ((string)(null)), table10, "Then ");
+#line hidden
+                global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
+                            "Key"});
+                table11.AddRow(new string[] {
+                            string.Format("{0}", key)});
+#line 61
+    await testRunner.AndAsync("cached customer should still be valid after 4 minutes", ((string)(null)), table11, "And ");
+#line hidden
+                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                            "Key"});
+                table12.AddRow(new string[] {
+                            string.Format("{0}", key)});
+#line 64
+    await testRunner.AndAsync("cached customer should be expired after 2 minutes", ((string)(null)), table12, "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

@@ -8,6 +8,7 @@ namespace Common.Cache.Tests.Steps
 {
     using System;
 
+#if NET462
     public class Customer
     {
         public int Id { get; set; }
@@ -15,4 +16,17 @@ namespace Common.Cache.Tests.Steps
         public string LastName { get; set; }
         public DateTime BirthDay { get; set; }
     }
+#else
+    using MemoryPack;
+
+    [MemoryPackable]
+    public sealed partial class Customer
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime BirthDay { get; set; }
+    }
+#endif
+
 }

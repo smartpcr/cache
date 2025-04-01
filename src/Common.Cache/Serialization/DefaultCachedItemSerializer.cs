@@ -17,11 +17,12 @@ namespace Common.Cache.Serialization
     public class DefaultCachedItemSerializer : ICachedItemSerializer
     {
 #if NET462 || NETSTANDARD2_0
-        private readonly MessagePackSerializerOptions? serializerOptions;
+        private readonly MessagePackSerializerOptions serializerOptions;
 
         public DefaultCachedItemSerializer(MessagePackSerializerOptions? serializerOptions)
         {
-            this.serializerOptions = serializerOptions;
+            this.serializerOptions = serializerOptions ?? MessagePackSerializerOptions.Standard
+                .WithResolver(MessagePack.Resolvers.ContractlessStandardResolver.Instance);
         }
 #else
         private readonly MemoryPackSerializerOptions? serializerOptions;
@@ -32,8 +33,13 @@ namespace Common.Cache.Serialization
         }
 #endif
 
-        public byte[] Serialize<T>(T? item)
+        public byte[]? Serialize<T>(T? item)
         {
+            if (item == null)
+            {
+                return null;
+            }
+
 #if NET462 || NETSTANDARD2_0
             return MessagePackSerializer.Serialize(item, this.serializerOptions);
 #else
@@ -51,8 +57,13 @@ namespace Common.Cache.Serialization
 #endif
         }
 
-        public T? Deserialize<T>(byte[] value)
+        public T? Deserialize<T>(byte[]? value)
         {
+            if (value == null)
+            {
+                return default;
+            }
+
 #if NET462 || NETSTANDARD2_0
             return MessagePackSerializer.Deserialize<T>(value, this.serializerOptions)!;
 #else
@@ -60,12 +71,12 @@ namespace Common.Cache.Serialization
 #endif
         }
 
-        public ValueTask<byte[]> SerializeAsync<T>(T? obj, CancellationToken token = default)
+        public ValueTask<byte[]?> SerializeAsync<T>(T? obj, CancellationToken token = default)
         {
-            return new ValueTask<byte[]>(this.Serialize(obj));
+            return new ValueTask<byte[]?>(this.Serialize(obj));
         }
 
-        public ValueTask<T?> DeserializeAsync<T>(byte[] data, CancellationToken token = default)
+        public ValueTask<T?> DeserializeAsync<T>(byte[]? data, CancellationToken token = default)
         {
             return new ValueTask<T?>(this.Deserialize<T>(data));
         }

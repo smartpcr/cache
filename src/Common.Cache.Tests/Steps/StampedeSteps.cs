@@ -73,10 +73,10 @@ namespace Common.Cache.Tests.Steps
 
             Volatile.Read(ref executeCount).Should().Be(0);
             Volatile.Read(ref cancelCount).Should().Be(0);
-            semaphore.Release();
-            this.outputHelper.WriteLine($"ExecuteCount: {executeCount}");
-            this.outputHelper.WriteLine($"CancelCount: {cancelCount}");
+            this.outputHelper.WriteLine($"ExecuteCount before 1st fetch: {executeCount}");
+            this.outputHelper.WriteLine($"CancelCount before 1st fetch: {cancelCount}");
 
+            semaphore.Release();
             results.Should().NotBeNullOrEmpty();
             var customers = new List<Customer>();
             var firstResult = await results[0];
@@ -92,6 +92,9 @@ namespace Common.Cache.Tests.Steps
             }
             Volatile.Read(ref executeCount).Should().Be(1);
             Volatile.Read(ref cancelCount).Should().Be(0);
+            this.outputHelper.WriteLine($"ExecuteCount after all fetches: {executeCount}");
+            this.outputHelper.WriteLine($"CancelCount after all fetches: {cancelCount}");
+
 
             this.context.Set(customers, "Customers");
             this.context.Set(executeCount, "ExecuteCount");

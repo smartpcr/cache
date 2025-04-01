@@ -11,6 +11,7 @@ namespace Common.Cache
         Null,
         Memory,
         Csv,
+        WindowsRegistry,
         Hybrid
     }
 }

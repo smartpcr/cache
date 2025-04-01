@@ -46,6 +46,10 @@ namespace Common.Cache.Tests.Steps
                     var l2 = new CsvCache(services.BuildServiceProvider());
                     services.AddSingleton<IDistributedCache>(l2);
                     break;
+                case CacheProviderType.WindowsRegistry:
+                    var l3 = new WindowsRegistryCache(services.BuildServiceProvider());
+                    services.AddSingleton<IDistributedCache>(l3);
+                    break;
                 case CacheProviderType.Hybrid:
                     var memCache = new MemoryCache(new MemoryCacheOptions { Clock = clock });
                     services.AddSingleton<IMemoryCache>(memCache);

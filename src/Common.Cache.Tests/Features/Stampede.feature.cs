@@ -126,51 +126,51 @@ namespace Common.Cache.Tests.Features
 #line 5
     await testRunner.GivenAsync("cache provider \"Hybrid\" is registered", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table13 = new global::Reqnroll.Table(new string[] {
                             "Key",
                             "Id",
                             "FirstName",
                             "LastName",
                             "BirthDay"});
-                table9.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "C001",
                             "100",
                             "Joe",
                             "Doe",
                             "1990-01-01"});
 #line 6
-    await testRunner.GivenAsync("a customer stored in backend api", ((string)(null)), table9, "Given ");
+    await testRunner.GivenAsync("a customer stored in backend api", ((string)(null)), table13, "Given ");
 #line hidden
-                global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table14 = new global::Reqnroll.Table(new string[] {
                             "CallCount",
                             "CanBeCanceled"});
-                table10.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             string.Format("{0}", callCount),
                             string.Format("{0}", canBeCanceled)});
 #line 9
-    await testRunner.WhenAsync("I try to fetch customer from cache with fetch from api upon cache miss", ((string)(null)), table10, "When ");
+    await testRunner.WhenAsync("I try to fetch customer from cache with fetch from api upon cache miss", ((string)(null)), table14, "When ");
 #line hidden
-                global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
                             "Key",
                             "Id",
                             "FirstName",
                             "LastName",
                             "BirthDay"});
-                table11.AddRow(new string[] {
+                table15.AddRow(new string[] {
                             "C001",
                             "100",
                             "Joe",
                             "Doe",
                             "1990-01-01"});
 #line 12
-    await testRunner.ThenAsync("expected customer should be returned", ((string)(null)), table11, "Then ");
+    await testRunner.ThenAsync("expected customer should be returned", ((string)(null)), table15, "Then ");
 #line hidden
-                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table16 = new global::Reqnroll.Table(new string[] {
                             "ExecutionCount"});
-                table12.AddRow(new string[] {
+                table16.AddRow(new string[] {
                             "1"});
 #line 15
-    await testRunner.AndAsync("backend call count should be", ((string)(null)), table12, "And ");
+    await testRunner.AndAsync("backend call count should be", ((string)(null)), table16, "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

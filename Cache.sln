@@ -18,10 +18,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{DE5BE5
 		global.json = global.json
 		Packages.props = Packages.props
 		stylecop.ruleset = stylecop.ruleset
-		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.Lib", "src\OpenTelemetry.Lib\OpenTelemetry.Lib.csproj", "{3C88EA27-7D34-4D20-BD11-3E2ECB1B67D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Cache.Benchmarks", "src\Common.Cache.Benchmarks\Common.Cache.Benchmarks.csproj", "{BCA27061-375E-41C2-9252-6908E43509C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +70,18 @@ Global
 		{3C88EA27-7D34-4D20-BD11-3E2ECB1B67D4}.Release|x64.Build.0 = Release|Any CPU
 		{3C88EA27-7D34-4D20-BD11-3E2ECB1B67D4}.Release|x86.ActiveCfg = Release|Any CPU
 		{3C88EA27-7D34-4D20-BD11-3E2ECB1B67D4}.Release|x86.Build.0 = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|x64.Build.0 = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Debug|x86.Build.0 = Debug|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|x64.ActiveCfg = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|x64.Build.0 = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|x86.ActiveCfg = Release|Any CPU
+		{BCA27061-375E-41C2-9252-6908E43509C9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,5 +90,6 @@ Global
 		{242B626E-9636-4504-BE2F-FDA66AC84DFE} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{FACEB1C7-5A44-41B8-9E1E-1844E4614DC8} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{3C88EA27-7D34-4D20-BD11-3E2ECB1B67D4} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{BCA27061-375E-41C2-9252-6908E43509C9} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
