@@ -76,6 +76,22 @@ namespace Common.Cache
         }
 
         /// <summary>
+        /// Get configured settings without validation.
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="sectionName"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetConfiguredValue<T>(this IConfiguration configuration, string? sectionName = null)
+            where T : class, new()
+        {
+            var configSection = GetConfigSection<T>(configuration, sectionName);
+            var settings = new T();
+            configSection.Bind(settings);
+            return settings;
+        }
+
+        /// <summary>
         /// Gets strong-typed settings from the configuration without injecting IOptions&lt;T&gt;.
         /// </summary>
         /// <param name="configuration"></param>

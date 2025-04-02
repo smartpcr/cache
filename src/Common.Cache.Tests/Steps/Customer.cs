@@ -10,23 +10,43 @@ namespace Common.Cache.Tests.Steps
 
 #if NET462
     public class Customer
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime BirthDay { get; set; }
-    }
 #else
     using MemoryPack;
 
     [MemoryPackable]
     public sealed partial class Customer
+#endif
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime BirthDay { get; set; }
-    }
-#endif
+        public byte[] Profile { get; set; }
 
+        public static Customer CreateTestData()
+        {
+            return new Customer()
+            {
+                Id = 100,
+                FirstName = "John",
+                LastName = "Doe",
+                BirthDay = new DateTime(1980, 1, 1),
+                Profile = new byte[] { 0x01, 0x02, 0x03 }
+            };
+        }
+
+        public static Customer CreateTestData(int payloadSize)
+        {
+            var payload = new byte[payloadSize];
+            new Random().NextBytes(payload);
+            return new Customer()
+            {
+                Id = payloadSize % 100,
+                FirstName = "John",
+                LastName = "Doe",
+                BirthDay = new DateTime(1980, 1, 1),
+                Profile = payload
+            };
+        }
+    }
 }

@@ -17,12 +17,17 @@ namespace Common.Cache.Serialization
     public class DefaultCachedItemSerializer : ICachedItemSerializer
     {
 #if NET462 || NETSTANDARD2_0
-        private readonly MessagePackSerializerOptions serializerOptions;
+        private readonly MessagePackSerializerOptions serializerOptions =
+            MessagePackSerializerOptions.Standard
+            .WithResolver(MessagePack.Resolvers.ContractlessStandardResolver.Instance);
 
-        public DefaultCachedItemSerializer(MessagePackSerializerOptions? serializerOptions)
+        public DefaultCachedItemSerializer()
         {
-            this.serializerOptions = serializerOptions ?? MessagePackSerializerOptions.Standard
-                .WithResolver(MessagePack.Resolvers.ContractlessStandardResolver.Instance);
+        }
+
+        public DefaultCachedItemSerializer(MessagePackSerializerOptions serializerOptions)
+        {
+            this.serializerOptions = serializerOptions;
         }
 #else
         private readonly MemoryPackSerializerOptions? serializerOptions;

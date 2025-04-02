@@ -12,6 +12,7 @@ namespace Common.Cache.Tests.Hooks
     using FluentAssertions;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Internal;
+    using Microsoft.Win32;
     using OpenTelemetry.Trace;
     using Reqnroll;
 
@@ -100,27 +101,38 @@ namespace Common.Cache.Tests.Hooks
             scenarioContext.Set(configuration);
             scenarioContext.Set(envName, "envName");
 
-            var cacheSettings = configuration.GetConfiguredSettings<CacheSettings>();
-            if (!string.IsNullOrEmpty(cacheSettings.CacheFolder) && Directory.Exists(cacheSettings.CacheFolder))
+            var cacheSettings = configuration.GetConfiguredValue<CacheSettings>();
+            if (!Directory.Exists(cacheSettings.CacheFolder))
             {
-                var files = Directory.GetFiles(cacheSettings.CacheFolder);
-                foreach (var file in files)
-                {
-                    outputHelper.WriteLine($"Deleting file: {file}");
-                    File.Delete(file);
-                }
+                Directory.CreateDirectory(cacheSettings.CacheFolder);
+            }
+            var cachedFiles = Directory.GetFiles(cacheSettings.CacheFolder);
+            foreach (var file in cachedFiles)
+            {
+                outputHelper.WriteLine($"Deleting file: {file}");
+                File.Delete(file);
             }
 
-            var cvsCacheSettings = configuration.GetConfiguredSettings<CsvCacheSettings>();
-            if (!string.IsNullOrEmpty(cvsCacheSettings.CacheFolder) && Directory.Exists(cvsCacheSettings.CacheFolder))
+            var cvsCacheSettings = configuration.GetConfiguredValue<CsvCacheSettings>();
+            if (!Directory.Exists(cvsCacheSettings.CacheFolder))
             {
-                var files = Directory.GetFiles(cvsCacheSettings.CacheFolder);
-                foreach (var file in files)
-                {
-                    outputHelper.WriteLine($"Deleting file: {file}");
-                    File.Delete(file);
-                }
+                Directory.CreateDirectory(cvsCacheSettings.CacheFolder);
             }
+            cachedFiles = Directory.GetFiles(cvsCacheSettings.CacheFolder);
+            foreach (var file in cachedFiles)
+            {
+                outputHelper.WriteLine($"Deleting file: {file}");
+                File.Delete(file);
+            }
+
+            var winRegCacheSettings = configuration.GetConfiguredValue<WindowsRegistryCacheSettings>();
+            using var baseKey = Registry.LocalMachine.OpenSubKey(winRegCacheSettings.RegistryPath, writable: true);
+            if (baseKey == null)
+            {
+                // Create the registry key if it does not exist
+                Registry.LocalMachine.CreateSubKey(winRegCacheSettings.RegistryPath);
+            }
+            Registry.LocalMachine.DeleteSubKeyTree(winRegCacheSettings.RegistryPath);
         }
 
     }

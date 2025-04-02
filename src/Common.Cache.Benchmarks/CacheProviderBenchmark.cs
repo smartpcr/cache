@@ -8,6 +8,7 @@ namespace Common.Cache.Benchmarks
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using BenchmarkDotNet.Attributes;
     using Common.Cache.Serialization;
@@ -18,6 +19,7 @@ namespace Common.Cache.Benchmarks
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Internal;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Win32;
     using OpenTelemetry.Lib;
 
     [MemoryDiagnoser]
@@ -43,7 +45,25 @@ namespace Common.Cache.Benchmarks
         public void Setup()
         {
             var services = new ServiceCollection();
-            services.AddConfiguration();
+            var config = services.AddConfiguration();
+            var cacheSettings = config.GetConfiguredSettings<CacheSettings>();
+            if (!Directory.Exists(cacheSettings.CacheFolder))
+            {
+                Directory.CreateDirectory(cacheSettings.CacheFolder);
+            }
+            var csvCacheSettings = config.GetConfiguredSettings<CsvCacheSettings>();
+            if (!Directory.Exists(csvCacheSettings.CacheFolder))
+            {
+                Directory.CreateDirectory(csvCacheSettings.CacheFolder);
+            }
+            var winRegCacheSettings = config.GetConfiguredSettings<WindowsRegistryCacheSettings>();
+            using var baseKey = Registry.LocalMachine.OpenSubKey(winRegCacheSettings.RegistryPath, writable: true);
+            if (baseKey == null)
+            {
+                // Create the registry key if it does not exist
+                Registry.LocalMachine.CreateSubKey(winRegCacheSettings.RegistryPath);
+            }
+
             services.AddSingleton(DiagConfig);
 
             ISystemClock clock = new SystemClock();
