@@ -61,6 +61,7 @@ namespace Common.Cache.Benchmarks
             if (baseKey == null)
             {
                 // Create the registry key if it does not exist
+                Console.WriteLine($"creating win registry key at {winRegCacheSettings.RegistryPath}");
                 Registry.LocalMachine.CreateSubKey(winRegCacheSettings.RegistryPath);
             }
 

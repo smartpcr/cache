@@ -132,7 +132,6 @@ namespace Common.Cache.Tests.Hooks
                 // Create the registry key if it does not exist
                 Registry.LocalMachine.CreateSubKey(winRegCacheSettings.RegistryPath);
             }
-            Registry.LocalMachine.DeleteSubKeyTree(winRegCacheSettings.RegistryPath);
         }
 
     }

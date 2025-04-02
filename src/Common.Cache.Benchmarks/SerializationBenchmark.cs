@@ -9,7 +9,6 @@ namespace Common.Cache.Benchmarks
     using BenchmarkDotNet.Attributes;
     using Common.Cache.Serialization;
     using Common.Cache.Tests.Steps;
-    using FluentAssertions;
     using Newtonsoft.Json;
 #if NET462 || NETSTANDARD2_0
     using MessagePack;
@@ -28,8 +27,7 @@ namespace Common.Cache.Benchmarks
         {
             var customer = Customer.CreateTestData(this.PayloadSize);
             var json = JsonConvert.SerializeObject(customer);
-            var deserializedCustomer = JsonConvert.DeserializeObject<Customer>(json);
-            deserializedCustomer.Should().BeEquivalentTo(customer);
+            JsonConvert.DeserializeObject<Customer>(json);
         }
 
         [Benchmark]
@@ -37,22 +35,27 @@ namespace Common.Cache.Benchmarks
         {
             var customer = Customer.CreateTestData(this.PayloadSize);
             var json = System.Text.Json.JsonSerializer.Serialize(customer);
-            var deserializedCustomer = System.Text.Json.JsonSerializer.Deserialize<Customer>(json);
-            deserializedCustomer.Should().BeEquivalentTo(customer);
+            System.Text.Json.JsonSerializer.Deserialize<Customer>(json);
         }
 
         [Benchmark]
         public void SerializeWithMessagePack()
         {
             var customer = Customer.CreateTestData(this.PayloadSize);
-            #if NET462 || NETSTANDARD2_0
-            var serializer = new DefaultCachedItemSerializer();
+#if NET462 || NETSTANDARD2_0
+            var msgPackSerializerOptions =
+                MessagePackSerializerOptions.Standard
+                    .WithResolver(MessagePack.Resolvers.ContractlessStandardResolver.Instance);
+            var bytes = MessagePackSerializer.Serialize(customer, msgPackSerializerOptions);
+            MessagePackSerializer.Deserialize<Customer>(bytes, msgPackSerializerOptions);
 #else
-            var serializer = new DefaultCachedItemSerializer(new MemoryPackSerializerOptions());
+            var buffer = new PoolBufferWriter();
+            var memSerializationOptions = new MemoryPackSerializerOptions();
+            MemoryPackWriter<PoolBufferWriter> writer = new(ref buffer, MemoryPackWriterOptionalStatePool.Rent(memSerializationOptions));
+            MemoryPackSerializer.Serialize(ref writer, customer);
+            var bytes = buffer.ToArray();
+            MemoryPackSerializer.Deserialize<Customer>(bytes, memSerializationOptions);
 #endif
-            var bytes = serializer.Serialize(customer);
-            var deserializedCustomer = serializer.Deserialize<Customer>(bytes);
-            deserializedCustomer.Should().BeEquivalentTo(customer);
         }
     }
 }
