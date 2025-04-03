@@ -20,13 +20,13 @@ namespace Common.Cache
     /// <summary>
     /// L2 cache implementation using files under cluster shared volume.
     /// </summary>
-    public class CsvCache : IDistributedCache
+    public class CsvFileCache : IDistributedCache
     {
         private readonly CsvCacheSettings cacheSettings;
         private readonly DiagnosticsConfig diagnosticsConfig;
         private readonly ISystemClock clock;
 
-        public CsvCache(IServiceProvider serviceProvider)
+        public CsvFileCache(IServiceProvider serviceProvider)
         {
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             this.cacheSettings = configuration.GetConfiguredSettings<CsvCacheSettings>();

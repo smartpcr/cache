@@ -33,7 +33,7 @@ namespace Common.Cache.Benchmarks
         internal static readonly DiagnosticsConfig DiagConfig = new DiagnosticsConfig(OtelConfig, ServiceName);
 
         private MemoryCache memoryCache;
-        private CsvCache csvCache;
+        private CsvFileCache csvFileCache;
         private WindowsRegistryCache windowsRegistryCache;
         private IServiceProvider serviceProvider;
         private ICachedItemSerializer serializer;
@@ -73,14 +73,14 @@ namespace Common.Cache.Benchmarks
             this.memoryCache = new MemoryCache(new MemoryCacheOptions { Clock = new SystemClock() });
             services.AddSingleton(this.memoryCache);
 
-            this.csvCache = new CsvCache(services.BuildServiceProvider());
-            services.AddSingleton(this.csvCache);
+            this.csvFileCache = new CsvFileCache(services.BuildServiceProvider());
+            services.AddSingleton(this.csvFileCache);
 
             this.windowsRegistryCache = new WindowsRegistryCache(services.BuildServiceProvider());
             services.AddSingleton(this.windowsRegistryCache);
 
             services.AddSingleton<IMemoryCache>(this.memoryCache);
-            services.AddSingleton<IDistributedCache>(this.csvCache);
+            services.AddSingleton<IDistributedCache>(this.csvFileCache);
             services.AddHybridCache();
 
             this.serviceProvider = services.BuildServiceProvider();
@@ -104,13 +104,13 @@ namespace Common.Cache.Benchmarks
             try
             {
                 var payload = this.GetPayload();
-                await this.csvCache.SetAsync(CacheProviderBenchmark.Key,
+                await this.csvFileCache.SetAsync(CacheProviderBenchmark.Key,
                     payload,
                     new DistributedCacheEntryOptions()
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
                     });
-                var stored = await this.csvCache.GetAsync(CacheProviderBenchmark.Key);
+                var stored = await this.csvFileCache.GetAsync(CacheProviderBenchmark.Key);
                 stored.Should().NotBeNull();
                 stored.Should().BeEquivalentTo(payload);
             }

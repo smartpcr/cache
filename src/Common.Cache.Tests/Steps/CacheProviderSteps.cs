@@ -43,7 +43,7 @@ namespace Common.Cache.Tests.Steps
                     services.AddSingleton<IMemoryCache>(l1);
                     break;
                 case CacheProviderType.Csv:
-                    var l2 = new CsvCache(services.BuildServiceProvider());
+                    var l2 = new CsvFileCache(services.BuildServiceProvider());
                     services.AddSingleton<IDistributedCache>(l2);
                     break;
                 case CacheProviderType.WindowsRegistry:
@@ -53,7 +53,7 @@ namespace Common.Cache.Tests.Steps
                 case CacheProviderType.Hybrid:
                     var memCache = new MemoryCache(new MemoryCacheOptions { Clock = clock });
                     services.AddSingleton<IMemoryCache>(memCache);
-                    var csvCache = new CsvCache(services.BuildServiceProvider());
+                    var csvCache = new CsvFileCache(services.BuildServiceProvider());
                     services.AddSingleton<IDistributedCache>(csvCache);
                     services.AddHybridCache();
                     break;
