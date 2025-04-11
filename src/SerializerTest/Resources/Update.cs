@@ -21,6 +21,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models an Update resource.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class Update : BaseResourceProperties, IEquatable<Update>
     {
         /// <summary>

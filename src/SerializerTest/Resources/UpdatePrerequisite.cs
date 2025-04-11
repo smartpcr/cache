@@ -14,6 +14,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models is the prerequisite package information for an update.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class UpdatePrerequisite : IEquatable<UpdatePrerequisite>
     {
         /// <summary>

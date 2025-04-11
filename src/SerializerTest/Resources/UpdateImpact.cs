@@ -14,6 +14,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models the UpdateImpact.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class UpdateImpact
     {
         [DataMember]

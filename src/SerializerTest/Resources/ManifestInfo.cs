@@ -14,6 +14,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models the manifest info.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class ManifestInfo : IEquatable<ManifestInfo>
     {
         /// <summary>

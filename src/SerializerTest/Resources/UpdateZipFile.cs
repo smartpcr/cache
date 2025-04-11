@@ -13,6 +13,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// Represents the update's zip file used in the update process.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class UpdateZipFile
     {
         /// <summary>

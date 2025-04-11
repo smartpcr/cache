@@ -17,6 +17,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models an UpdateRun resource.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class UpdateRun : BaseResourceProperties
     {
         /// <summary>

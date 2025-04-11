@@ -16,6 +16,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Models
     /// but to a custom logic to determine if the RpIds are equal. It also means RpIds can be used
     /// as dictionary keys : the hash code wont be based on the reference of the object.
     /// </summary>
+    [Serializable]
     public class RpId : PathBasedId<RpId>, IEquatable<RpId>
     {
         private string armName;

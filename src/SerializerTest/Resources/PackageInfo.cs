@@ -14,6 +14,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models the package info.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class PackageInfo : IEquatable<PackageInfo>
     {
         /// <summary>

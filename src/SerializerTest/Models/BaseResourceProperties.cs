@@ -6,6 +6,7 @@
 
 namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Models
 {
+    using System;
     using System.Runtime.Serialization;
     using Contract;
     using Newtonsoft.Json;
@@ -14,6 +15,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Models
     /// Define the base behavior for class implementing the <see cref="IResourceProperties"/> interface
     /// </summary>
     [DataContract]
+    [Serializable]
     public abstract class BaseResourceProperties : IResourceProperties
     {
         /// <summary>

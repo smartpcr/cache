@@ -6,12 +6,14 @@
 
 namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
 {
+    using System;
     using System.Runtime.Serialization;
 
     /// <summary>
     /// This class models is the state properties of an update.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class UpdateStateProperties
     {
         /// <summary>

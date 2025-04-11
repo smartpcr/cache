@@ -11,6 +11,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// <summary>
     /// Represents the update's metadata file.
     /// </summary>
+    [Serializable]
     public class UpdateMetadataFile
     {
         /// <summary>

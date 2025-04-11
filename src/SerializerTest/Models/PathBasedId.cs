@@ -6,6 +6,7 @@
 
 namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Models
 {
+    using System;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -13,6 +14,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Models
     /// </summary>
     /// <typeparam name="T">The type of the parent id (used to have a strong type recursion).</typeparam>
     [DataContract]
+    [Serializable]
     public abstract class PathBasedId<T>
         where T : PathBasedId<T>
     {

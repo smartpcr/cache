@@ -6,11 +6,13 @@
 
 namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Xml.Linq;
 
+    [Serializable]
     public class SupportedModel
     {
         /// <summary>

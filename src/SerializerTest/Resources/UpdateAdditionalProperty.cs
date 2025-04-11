@@ -6,9 +6,11 @@
 
 namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
 {
+    using System;
     using System.Runtime.Serialization;
 
     [DataContract]
+    [Serializable]
     public class UpdateAdditionalProperty
     {
         /// <summary>

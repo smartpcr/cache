@@ -15,6 +15,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models the validated configration.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class ValidatedConfiguration : IEquatable<ValidatedConfiguration>
     {
         /// <summary>

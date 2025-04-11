@@ -14,12 +14,14 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models the OS info of the platform update.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class OSInfo : IEquatable<OSInfo>
     {
         /// <summary>
         /// The hotpatch info.
         /// </summary>
         [DataContract]
+        [Serializable]
         public class HotpatchInfo
         {
             [DataMember]
@@ -39,6 +41,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
         /// The coldpatch info.
         /// </summary>
         [DataContract]
+        [Serializable]
         public class ColdpatchInfo
         {
             [DataMember]

@@ -15,6 +15,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// <summary>
     /// Step of an update. This object represents steps in the summary.xml provided by ECE.
     /// </summary>
+    [Serializable]
     public class Step
     {
         private const string EndTimeUtcXmlAttribute = "EndTimeUtc";

@@ -13,6 +13,7 @@ namespace Microsoft.AzureStack.Services.Fabric.Common.Resource.Resources
     /// This class models is the package information for an Azure Stack Hub stamp.
     /// </summary>
     [DataContract]
+    [Serializable]
     public class PackageVersionInfo
     {
         /// <summary>
