@@ -6,12 +6,20 @@
 
 namespace Common.Cache
 {
+    using System.Runtime.Serialization;
+
+    [DataContract]
     public enum CacheProviderType
     {
+        [EnumMember]
         Null,
+        [EnumMember]
         Memory,
+        [EnumMember]
         Csv,
+        [EnumMember]
         WindowsRegistry,
+        [EnumMember]
         Hybrid
     }
 }
