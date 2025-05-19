@@ -29,14 +29,20 @@ namespace Common.Cache
         public long? SizeLimit { get; set; } = 100 * 1024 * 1024; // 100 MB
 
         /// <summary>
-        /// Gets or sets the minimum length of time between successive scans for expired items.
+        /// Gets or sets global expiration span of cached item. Default is null and only use individual item expiration.
         /// </summary>
-        public TimeSpan TimeToLive { get; set; } = TimeSpan.FromMinutes(15);
+        public TimeSpan? TimeToLive { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the expiration period for purging old cache files.
+        /// Default is null and never purge.
+        /// </summary>
+        public int? PurgeExpirationInDays { get; set; } = null;
     }
 
     public class FolderExistsValidationAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (string.IsNullOrWhiteSpace(value?.ToString()))
             {

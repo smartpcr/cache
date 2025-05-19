@@ -9,7 +9,6 @@ namespace Common.Cache.Benchmarks
     using System.Collections.Generic;
     using BenchmarkDotNet.Attributes;
     using Common.Cache.Serialization;
-    using Common.Cache.Tests.Steps;
     using Newtonsoft.Json;
 #if NET462 || NETSTANDARD2_0
     using MessagePack;

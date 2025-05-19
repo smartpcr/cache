@@ -38,7 +38,7 @@ namespace Common.Cache
             {
                 CompactionPercentage = this.cacheSettings.CompactionPercentage,
                 SizeLimit = this.cacheSettings.SizeLimit,
-                ExpirationScanFrequency = this.cacheSettings.TimeToLive,
+                ExpirationScanFrequency = this.cacheSettings.TimeToLive.Value,
                 Clock = this.clock
             };
             this.memoryCache = new MemoryCache(new OptionsWrapper<MemoryCacheOptions>(cacheOptions));
@@ -64,7 +64,7 @@ namespace Common.Cache
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
                 if (File.Exists(cacheFile))
                 {
-                    if (File.GetCreationTimeUtc(cacheFile).Add(this.cacheSettings.TimeToLive) < this.clock.UtcNow)
+                    if (File.GetCreationTimeUtc(cacheFile).Add(this.cacheSettings.TimeToLive.Value) < this.clock.UtcNow)
                     {
                         this.diagnosticsConfig.OnCacheExpired(key);
                         return null;
@@ -88,9 +88,9 @@ namespace Common.Cache
                 var size = (int)Math.Ceiling((double)fileContent.Length / 1_000_000); // MB
                 var entryOptions = new MemoryCacheEntryOptions()
                     .SetSize(size)
-                    .SetSlidingExpiration(this.cacheSettings.TimeToLive);
+                    .SetSlidingExpiration(this.cacheSettings.TimeToLive.Value);
                 this.memoryCache.Set(key, fileContent, entryOptions);
-                this.diagnosticsConfig.OnCacheUpsert(key, this.cacheSettings.TimeToLive);
+                this.diagnosticsConfig.OnCacheUpsert(key, this.cacheSettings.TimeToLive.Value);
 
                 return fileContent;
             }
@@ -118,7 +118,7 @@ namespace Common.Cache
                 span.SetAttribute("size", size);
                 var entryOptions = new MemoryCacheEntryOptions()
                     .SetSize(size)
-                    .SetSlidingExpiration(this.cacheSettings.TimeToLive);
+                    .SetSlidingExpiration(this.cacheSettings.TimeToLive.Value);
                 this.memoryCache.Set(key, value, entryOptions);
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
                 if (File.Exists(cacheFile))
@@ -131,7 +131,7 @@ namespace Common.Cache
 #else
                 await File.WriteAllBytesAsync(cacheFile, value, token);
 #endif
-                this.diagnosticsConfig.OnCacheUpsert(key, this.cacheSettings.TimeToLive);
+                this.diagnosticsConfig.OnCacheUpsert(key, this.cacheSettings.TimeToLive.Value);
             }
             catch (Exception ex)
             {
@@ -162,7 +162,7 @@ namespace Common.Cache
                 var size = (int)Math.Ceiling((double)cachedValue.Length / 1_000_000); // MB
                 var entryOptions = new MemoryCacheEntryOptions()
                     .SetSize(size)
-                    .SetSlidingExpiration(this.cacheSettings.TimeToLive);
+                    .SetSlidingExpiration(this.cacheSettings.TimeToLive.Value);
                 this.memoryCache.Set(key, cachedValue, entryOptions);
             }
             else
@@ -255,7 +255,7 @@ namespace Common.Cache
                 span.SetAttribute("size", size);
                 var entryOptions = new MemoryCacheEntryOptions()
                     .SetSize(size)
-                    .SetSlidingExpiration(this.cacheSettings.TimeToLive);
+                    .SetSlidingExpiration(this.cacheSettings.TimeToLive.Value);
                 this.memoryCache.Set(key, value.ToArray(), entryOptions);
                 var cacheFile = Path.Combine(this.cacheSettings.CacheFolder, key);
                 if (File.Exists(cacheFile))

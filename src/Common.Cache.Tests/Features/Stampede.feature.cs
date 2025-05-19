@@ -19,7 +19,10 @@ namespace Common.Cache.Tests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class StampedeFeature : object, Xunit.IClassFixture<StampedeFeature.FixtureData>, Xunit.IAsyncLifetime
+    [NUnit.Framework.TestFixtureAttribute()]
+    [NUnit.Framework.DescriptionAttribute("stampede")]
+    [NUnit.Framework.FixtureLifeCycleAttribute(NUnit.Framework.LifeCycle.InstancePerTestCase)]
+    public partial class StampedeFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -28,24 +31,20 @@ namespace Common.Cache.Tests.Features
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "stampede", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
-        private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "Stampede.feature"
 #line hidden
         
-        public StampedeFeature(StampedeFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
-        {
-            this._testOutputHelper = testOutputHelper;
-        }
-        
+        [NUnit.Framework.OneTimeSetUpAttribute()]
         public static async System.Threading.Tasks.Task FeatureSetupAsync()
         {
         }
         
+        [NUnit.Framework.OneTimeTearDownAttribute()]
         public static async System.Threading.Tasks.Task FeatureTearDownAsync()
         {
         }
         
+        [NUnit.Framework.SetUpAttribute()]
         public async System.Threading.Tasks.Task TestInitializeAsync()
         {
             testRunner = global::Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(featureHint: featureInfo);
@@ -60,6 +59,7 @@ namespace Common.Cache.Tests.Features
             }
         }
         
+        [NUnit.Framework.TearDownAttribute()]
         public async System.Threading.Tasks.Task TestTearDownAsync()
         {
             await testRunner.OnScenarioEndAsync();
@@ -69,7 +69,7 @@ namespace Common.Cache.Tests.Features
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<NUnit.Framework.TestContext>(NUnit.Framework.TestContext.CurrentContext);
         }
         
         public async System.Threading.Tasks.Task ScenarioStartAsync()
@@ -82,24 +82,13 @@ namespace Common.Cache.Tests.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-        {
-            await this.TestInitializeAsync();
-        }
-        
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-        {
-            await this.TestTearDownAsync();
-        }
-        
-        [Xunit.SkippableTheoryAttribute(DisplayName="multiple gets share single backend fetch")]
-        [Xunit.TraitAttribute("FeatureTitle", "stampede")]
-        [Xunit.TraitAttribute("Description", "multiple gets share single backend fetch")]
-        [Xunit.TraitAttribute("Category", "prod")]
-        [Xunit.InlineDataAttribute("1", "false", new string[0])]
-        [Xunit.InlineDataAttribute("1", "true", new string[0])]
-        [Xunit.InlineDataAttribute("10", "false", new string[0])]
-        [Xunit.InlineDataAttribute("10", "true", new string[0])]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("multiple gets share single backend fetch")]
+        [NUnit.Framework.CategoryAttribute("prod")]
+        [NUnit.Framework.TestCaseAttribute("1", "false", null)]
+        [NUnit.Framework.TestCaseAttribute("1", "true", null)]
+        [NUnit.Framework.TestCaseAttribute("10", "false", null)]
+        [NUnit.Framework.TestCaseAttribute("10", "true", null)]
         public async System.Threading.Tasks.Task MultipleGetsShareSingleBackendFetch(string callCount, string canBeCanceled, string[] exampleTags)
         {
             string[] @__tags = new string[] {
@@ -174,22 +163,6 @@ namespace Common.Cache.Tests.Features
 #line hidden
             }
             await this.ScenarioCleanupAsync();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, Xunit.IAsyncLifetime
-        {
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-            {
-                await StampedeFeature.FeatureSetupAsync();
-            }
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-            {
-                await StampedeFeature.FeatureTearDownAsync();
-            }
         }
     }
 }

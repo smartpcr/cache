@@ -8,7 +8,6 @@ namespace Common.Cache.Benchmarks
 {
     using System;
     using System.Collections.Generic;
-    using Common.Cache.Tests.Steps;
 
     public class Product
     {

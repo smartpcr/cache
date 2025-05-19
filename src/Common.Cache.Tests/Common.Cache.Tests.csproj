@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;net8.0</TargetFrameworks>
+    <TargetFramework>net462</TargetFramework>
     <IsTestProject>true</IsTestProject>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <ReqnrollTestRunner>xunit</ReqnrollTestRunner>

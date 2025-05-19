@@ -11,7 +11,6 @@ namespace Common.Cache.Benchmarks
     using System.IO;
     using System.Threading.Tasks;
     using BenchmarkDotNet.Attributes;
-    using Common.Cache.Serialization;
     using FluentAssertions;
     using Microsoft.Extensions.Caching.Distributed;
     using Microsoft.Extensions.Caching.Hybrid;
@@ -36,7 +35,6 @@ namespace Common.Cache.Benchmarks
         private CsvFileCache csvFileCache;
         private WindowsRegistryCache windowsRegistryCache;
         private IServiceProvider serviceProvider;
-        private ICachedItemSerializer serializer;
 
         [Params(16, 16348, 5242880)]
         public int PayloadSize { get; set; }
@@ -73,7 +71,7 @@ namespace Common.Cache.Benchmarks
             this.memoryCache = new MemoryCache(new MemoryCacheOptions { Clock = new SystemClock() });
             services.AddSingleton(this.memoryCache);
 
-            this.csvFileCache = new CsvFileCache(services.BuildServiceProvider());
+            this.csvFileCache = new CsvFileCache(cacheSettings, clock, DiagConfig);
             services.AddSingleton(this.csvFileCache);
 
             this.windowsRegistryCache = new WindowsRegistryCache(services.BuildServiceProvider());
@@ -84,8 +82,6 @@ namespace Common.Cache.Benchmarks
             services.AddHybridCache();
 
             this.serviceProvider = services.BuildServiceProvider();
-
-            this.serializer = new DefaultCachedItemSerializer(null);
         }
 
         [Benchmark]

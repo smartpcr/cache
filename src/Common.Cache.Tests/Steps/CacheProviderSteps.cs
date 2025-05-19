@@ -8,9 +8,11 @@ namespace Common.Cache.Tests.Steps
 {
     using System;
     using System.Threading.Tasks;
+    using Common.Cache.Serialization;
     using Common.Cache.Tests.Hooks;
     using FluentAssertions;
     using Microsoft.Extensions.Caching.Distributed;
+    using Microsoft.Extensions.Caching.Hybrid;
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.DependencyInjection;
     using Reqnroll;
@@ -55,6 +57,8 @@ namespace Common.Cache.Tests.Steps
                     services.AddSingleton<IMemoryCache>(memCache);
                     var csvCache = new CsvFileCache(services.BuildServiceProvider());
                     services.AddSingleton<IDistributedCache>(csvCache);
+                    var factory = new SerializerFactory(SerializerType.Binary);
+                    services.AddSingleton<IHybridCacheSerializerFactory>(factory);
                     services.AddHybridCache();
                     break;
             }

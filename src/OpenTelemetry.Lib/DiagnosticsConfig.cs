@@ -17,19 +17,16 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
 /// <summary>
-/// This is singleton instance registered in the application. It is responsible for setting up
-/// tracing, metrics and logging.
+/// DiagnosticsConfig is a singleton class that provides a set of diagnostics utility functions.
+/// It contains the following disposable objects:
+/// ILoggerFactory is used to create loggers for different types.
+/// Meter is used to create metrics for the application.
+/// We do not explicitly dispose these objects, as DiagnosticsConfig is a singleton and
+/// will be disposed when the application exits.
 /// </summary>
-public class DiagnosticsConfig : IDisposable
+public class DiagnosticsConfig
 {
-    /// <summary>
-    /// Http header name for trace parent.
-    /// </summary>
     public const string TraceParentHeader = "traceparent";
-
-    /// <summary>
-    /// Http header name for trace state.
-    /// </summary>
     public const string TraceStateHeader = "tracestate";
 
     // http stack counters
@@ -39,14 +36,14 @@ public class DiagnosticsConfig : IDisposable
     private readonly Counter<long> httpServerRequestLatencyCounter;
 
     // tasks
-    private long taskTrackingId;
+    private long taskTrackingId = 0;
     private readonly ConcurrentDictionary<long, DateTime> runningTasks = new ConcurrentDictionary<long, DateTime>();
     private readonly Counter<long> scheduledTasksCounter;
     private readonly Counter<long> finishedTasksCounter;
     private readonly Counter<long> failedTasksCounter;
 
     // synclocks
-    private long lockTrackingId;
+    private long lockTrackingId = 0;
     private readonly ConcurrentDictionary<long, DateTime> activeLocks = new ConcurrentDictionary<long, DateTime>();
     private readonly Counter<long> enterLockCounter;
     private readonly Counter<long> exitLockCounter;
@@ -56,182 +53,142 @@ public class DiagnosticsConfig : IDisposable
     private readonly Counter<long> cacheHitCounter;
     private readonly Counter<long> cacheMissCounter;
     private readonly Counter<long> cacheExpiredCounter;
+    private readonly Counter<long> cacheRemovedCounter;
+    private readonly Counter<long> cacheErrorCounter;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DiagnosticsConfig"/> class.
-    /// </summary>
-    /// <param name="configuration">Configuration settings.</param>
-    /// <param name="serviceName">The service name.</param>
-    /// <param name="serviceVersion">The service version.</param>
     public DiagnosticsConfig(
         Dictionary<string, string> configuration,
         string serviceName = ApplicationMetadata.ServiceName,
         string serviceVersion = ApplicationMetadata.ServiceVersion)
     {
-        this.LoggerFactory = OtelBuilder.SetupLogger(configuration, serviceName, serviceVersion);
-        this.MeterProvider = OtelBuilder.SetupMetrics(configuration, serviceName, serviceVersion);
-        this.TracerProvider = OtelBuilder.SetupTracing(configuration, serviceName, serviceVersion);
-        this.Tracer = this.TracerProvider.GetTracer(serviceName);
-        this.Meter = new Meter(serviceName);
+        LoggerFactory = OtelBuilder.SetupLogger(configuration, serviceName, serviceVersion);
+        MeterProvider = OtelBuilder.SetupMetrics(configuration, serviceName, serviceVersion);
+        TracerProvider = OtelBuilder.SetupTracing(configuration, serviceName, serviceVersion);
+        Tracer = TracerProvider.GetTracer(serviceName);
+        Meter = new Meter(serviceName);
 
-        // http stack counters
-        this.httpClientRequestCounter = this.Meter.CreateCounter<long>(
+        this.httpClientRequestCounter = Meter.CreateCounter<long>(
             "hci.http.client.request.count",
             "count",
             "The number of HTTP client requests");
-        this.httpClientRequestLatencyCounter = this.Meter.CreateCounter<long>(
+        this.httpClientRequestLatencyCounter = Meter.CreateCounter<long>(
             "hci.http.client.request.latency",
             "ms",
             "The duration of HTTP client request in milliseconds");
-        this.httpServerRequestCounter = this.Meter.CreateCounter<long>(
+        this.httpServerRequestCounter = Meter.CreateCounter<long>(
             "hci.http.server.request.count",
             "count",
             "The number of HTTP server requests");
-        this.httpServerRequestLatencyCounter = this.Meter.CreateCounter<long>(
+        this.httpServerRequestLatencyCounter = Meter.CreateCounter<long>(
             "hci.http.server.request.latency",
             "ms",
             "The duration of HTTP server request in milliseconds");
 
-        // tasks
-        this.scheduledTasksCounter = this.Meter.CreateCounter<long>(
+        this.scheduledTasksCounter = Meter.CreateCounter<long>(
             "hci.tasks.scheduled",
             "count",
             "total scheduled tasks");
-        this.finishedTasksCounter = this.Meter.CreateCounter<long>(
+        this.finishedTasksCounter = Meter.CreateCounter<long>(
             "hci.tasks.finished",
             "count",
             "total finished tasks");
-        this.failedTasksCounter = this.Meter.CreateCounter<long>(
+        this.failedTasksCounter = Meter.CreateCounter<long>(
             "hci.tasks.failed",
             "count",
             "total failed tasks");
 
-        // locks
-        this.enterLockCounter = this.Meter.CreateCounter<long>(
+        this.enterLockCounter = Meter.CreateCounter<long>(
             "hci.lock.enter",
             "count",
             "total locks entered");
-        this.exitLockCounter = this.Meter.CreateCounter<long>(
+        this.exitLockCounter = Meter.CreateCounter<long>(
             "hci.lock.exit",
             "count",
             "total locks exited");
 
-        // cache
-        this.cacheUpsertCounter = this.Meter.CreateCounter<long>(
+        this.cacheUpsertCounter = Meter.CreateCounter<long>(
             "hci.cache.upsert",
             "count",
             "total cache upserts");
-        this.cacheHitCounter = this.Meter.CreateCounter<long>(
+        this.cacheHitCounter = Meter.CreateCounter<long>(
             "hci.cache.hit",
             "count",
             "total cache hits");
-        this.cacheMissCounter = this.Meter.CreateCounter<long>(
+        this.cacheMissCounter = Meter.CreateCounter<long>(
             "hci.cache.miss",
             "count",
             "total cache misses");
-        this.cacheExpiredCounter = this.Meter.CreateCounter<long>(
+        this.cacheExpiredCounter = Meter.CreateCounter<long>(
             "hci.cache.expired",
             "count",
             "total cache expired");
+        this.cacheRemovedCounter = Meter.CreateCounter<long>(
+            "hci.cache.removed",
+            "count",
+            "total cache removed");
+        this.cacheErrorCounter = Meter.CreateCounter<long>(
+            "hci.cache.error",
+            "count",
+            "total cache errors");
 
         DiagnosticsConfig.Instance = this;
     }
 
     /// <summary>
-    /// Gets a singleton instance of <see cref="DiagnosticsConfig"/>.
-    /// </summary>
-    public static DiagnosticsConfig Instance { get; private set; } = new DiagnosticsConfig(new Dictionary<string, string>()); // default instance
-
-    /// <summary>
-    /// this is used for BVTs.
+    /// this is used for BVTs
     /// </summary>
     /// <param name="otelEndpoint">Local OLTP receiver endpoint.</param>
-    /// <returns>An instance of <see cref="DiagnosticsConfig"/>.</returns>
+    /// <returns></returns>
     public static DiagnosticsConfig GetEnabledInstance(string otelEndpoint) =>
         new DiagnosticsConfig(new Dictionary<string, string>()
         {
             { OtelSettings.OtelEnabledParameter, "true" },
             { OtelSettings.SinkTypesParameter, OtelSinkTypes.OTLP.ToString() },
-            { OtelSettings.OtelEndpointParameter, otelEndpoint },
+            { OtelSettings.OtelEndpointParameter, otelEndpoint }
         });
 
     /// <summary>
-    /// Delegate to get header value from incoming request.
+    /// Singleton instance of DiagnosticsConfig.
     /// </summary>
-    /// <param name="key">The header key used to lookup header value.</param>
-    /// <param name="value">Retrieved value if found in headers.</param>
-    /// <returns>A flag indicating if header exists by key.</returns>
-    public delegate bool TryGetHeaderValueDelegate(string key, out string? value);
+    public static DiagnosticsConfig Instance { get; private set; } = new DiagnosticsConfig(new Dictionary<string, string>()); // default instance
 
     /// <summary>
-    /// Gets the injected singleton logger factory.
+    /// Always return new instance for test isolation and prevent being disposed prematurely.
     /// </summary>
+    public static DiagnosticsConfig NewTestInstance => new DiagnosticsConfig(new Dictionary<string, string>());
+
+    public delegate bool TryGetHeaderValueDelegate(string key, out string value);
+
     public ILoggerFactory LoggerFactory { get; private set; }
 
-    /// <summary>
-    /// Gets the injected singleton meter provider.
-    /// </summary>
     public MeterProvider MeterProvider { get; private set; }
 
-    /// <summary>
-    /// Gets the injected singleton tracer provider.
-    /// </summary>
     public TracerProvider TracerProvider { get; private set; }
 
-    /// <summary>
-    /// Gets the injected singleton tracer.
-    /// </summary>
     public Tracer Tracer { get; private set; }
 
-    /// <summary>
-    /// Gets the injected singleton meter.
-    /// </summary>
     public Meter Meter { get; private set; }
 
-    /// <summary>
-    /// Gets the logger for the specified type.
-    /// </summary>
-    /// <typeparam name="T">Type.</typeparam>
-    /// <returns>An instance of logger of specified type.</returns>
-    public ILogger<T> GetLogger<T>() => this.LoggerFactory.CreateLogger<T>();
+    public ILogger<T> GetLogger<T>()
+    {
+        return this.LoggerFactory.CreateLogger<T>();
+    }
 
-    /// <summary>
-    /// Gets the logger for the specified type name.
-    /// </summary>
-    /// <param name="typeName">Type name.</param>
-    /// <returns>An instance of logger of specified type name.</returns>
-    public ILogger GetLogger(string typeName) => this.LoggerFactory.CreateLogger(typeName);
+    public ILogger GetLogger(string typeName)
+    {
+        return this.LoggerFactory.CreateLogger(typeName);
+    }
 
-    /// <summary>
-    /// Get the counter instance.
-    /// </summary>
-    /// <param name="name">The counter name.</param>
-    /// <param name="description">Counter description.</param>
-    /// <param name="tags">Counter tags.</param>
-    /// <returns>An instance of <see cref="Counter{T}"/>.</returns>
-    public Counter<long> GetCounter(string name, string description, List<KeyValuePair<string, object?>>? tags) =>
-        this.Meter.CreateCounter<long>(name, null, description, tags);
+    public Counter<long> GetCounter(string name, string description, List<KeyValuePair<string, object>> tags)
+    {
+        return this.Meter.CreateCounter<long>(name, null, description, tags);
+    }
 
-    /// <summary>
-    /// Get the histogram instance.
-    /// </summary>
-    /// <param name="name">Histogram name.</param>
-    /// <param name="unit">Histogram unit.</param>
-    /// <param name="description">Histogram description.</param>
-    /// <param name="tags">Histogram tags.</param>
-    /// <returns>An instance of <see cref="Histogram{T}"/>.</returns>
-    public Histogram<double> GetHistogram(string name, string unit, string description, List<KeyValuePair<string, object?>>? tags) =>
-        this.Meter.CreateHistogram<double>(name, unit, description, tags);
+    public Histogram<double> GetHistogram(string name, string unit, string description, List<KeyValuePair<string, object>> tags)
+    {
+        return this.Meter.CreateHistogram<double>(name, unit, description, tags);
+    }
 
-    /// <summary>
-    /// Start new span with the specified method name.
-    /// </summary>
-    /// <param name="methodName">The method name to be included as span name.</param>
-    /// <param name="spanKind">The span kind.</param>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartActiveSpan(
         string methodName,
         SpanKind spanKind = SpanKind.Internal,
@@ -247,13 +204,6 @@ public class DiagnosticsConfig : IDisposable
         return span;
     }
 
-    /// <summary>
-    /// Start new span from caller.
-    /// </summary>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartNewSpan(
         [CallerFilePath] string filePath = "",
         [CallerMemberName] string memberName = "",
@@ -267,13 +217,6 @@ public class DiagnosticsConfig : IDisposable
         return span;
     }
 
-    /// <summary>
-    /// Start a new root span.
-    /// </summary>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartNewRootSpan(
         [CallerFilePath] string filePath = "",
         [CallerMemberName] string memberName = "",
@@ -287,15 +230,6 @@ public class DiagnosticsConfig : IDisposable
         return span;
     }
 
-    /// <summary>
-    /// Start a new span from given parent.
-    /// </summary>
-    /// <param name="parentSpanContext">The parent call context.</param>
-    /// <param name="linkedSpanContext">The linked call context.</param>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartWithParent(
         SpanContext parentSpanContext,
         SpanContext linkedSpanContext = default,
@@ -317,54 +251,13 @@ public class DiagnosticsConfig : IDisposable
         return span;
     }
 
-    /// <summary>
-    /// Extracts trace context from incoming request headers and starts a new span.
-    /// </summary>
-    /// <param name="headers">The http headers.</param>
-    /// <param name="httpMethod">The http method.</param>
-    /// <param name="requestUri">The http request uri.</param>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
-    public TelemetrySpan StartControllerSpan(
-        HttpHeaders headers,
-        string httpMethod,
-        string requestUri,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
-    {
-        bool TryGetHeaderValue(string key, out string? value)
-        {
-            if (headers.TryGetValues(key, out var headerValues))
-            {
-                value = headerValues.FirstOrDefault();
-                return !string.IsNullOrEmpty(value);
-            }
-
-            value = null;
-            return false;
-        }
-
-        return this.StartControllerSpanInternal(this.Tracer, TryGetHeaderValue, httpMethod, requestUri, filePath, memberName, lineNumber);
-    }
-
-    /// <summary>
-    /// Extracts trace context from incoming request headers and starts a new span.
-    /// </summary>
-    /// <param name="listenerContext">The http listener context.</param>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartControllerSpan(
         HttpListenerContext listenerContext,
         [CallerFilePath] string filePath = "",
         [CallerMemberName] string memberName = "",
         [CallerLineNumber] int lineNumber = 0)
     {
-        bool TryGetHeaderValue(string key, out string? value)
+        bool TryGetHeaderValue(string key, out string value)
         {
             if (listenerContext.Request?.Headers.HasKeys() == true && listenerContext.Request.Headers[key] != null)
             {
@@ -376,26 +269,14 @@ public class DiagnosticsConfig : IDisposable
             return false;
         }
 
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         var httpMethod = listenerContext.Request?.HttpMethod;
         var requestUri = listenerContext.Request?.RawUrl;
-        return this.StartControllerSpanInternal(this.Tracer, TryGetHeaderValue, httpMethod ?? "unknown", requestUri ?? "unknown", filePath, memberName, lineNumber);
+        return StartControllerSpanInternal(this.Tracer, TryGetHeaderValue, httpMethod ?? "unknown", requestUri ?? "unknown", filePath, memberName, lineNumber);
     }
 
-    /// <summary>
-    /// Start new span for HttpClient request and inject trace context into request headers.
-    /// </summary>
-    /// <param name="requestHeaders">Http request headers.</param>
-    /// <param name="httpMethod">Http method.</param>
-    /// <param name="requestUri">Http request uri.</param>
-    /// <param name="filePath">Caller file path.</param>
-    /// <param name="memberName">Caller method name.</param>
-    /// <param name="lineNumber">Caller line number.</param>
-    /// <returns>An instance of <see cref="TelemetrySpan"/>.</returns>
     public TelemetrySpan StartHttpClientSpan(
-        HttpRequestHeaders requestHeaders,
-        string httpMethod,
-        string requestUri,
+        HttpRequestHeaders headers,
+        Uri baseUri,
         [CallerFilePath] string filePath = "",
         [CallerMemberName] string memberName = "",
         [CallerLineNumber] int lineNumber = 0)
@@ -405,12 +286,10 @@ public class DiagnosticsConfig : IDisposable
         span.SetAttribute("file", fileName);
         span.SetAttribute("line", lineNumber);
         span.SetAttribute("method", memberName);
-        span.SetAttribute("http.method", httpMethod);
-        span.SetAttribute("http.url", requestUri);
-        this.InjectSpanContext(span, requestHeaders);
+        span.SetAttribute("http.url", baseUri.AbsoluteUri);
+        InjectSpanContext(span, headers);
         return span;
     }
-
 
     #region http stack
 
@@ -424,18 +303,18 @@ public class DiagnosticsConfig : IDisposable
 
         this.httpClientRequestCounter.Add(
             1,
-            new KeyValuePair<string, object?>("http.method", method),
-            new KeyValuePair<string, object?>("http.request.uri", requestUri),
-            new KeyValuePair<string, object?>("http.response.status_code", statusCode));
+            new KeyValuePair<string, object>("http.method", method),
+            new KeyValuePair<string, object>("http.request.uri", requestUri),
+            new KeyValuePair<string, object>("http.response.status_code", statusCode));
 
         this.httpClientRequestLatencyCounter.Add(
             durationMs,
-            new KeyValuePair<string, object?>("http.method", method),
-            new KeyValuePair<string, object?>("http.request.uri", requestUri),
-            new KeyValuePair<string, object?>("http.response.status_code", statusCode));
+            new KeyValuePair<string, object>("http.method", method),
+            new KeyValuePair<string, object>("http.request.uri", requestUri),
+            new KeyValuePair<string, object>("http.response.status_code", statusCode));
     }
 
-    public void HttpServerRequestFinished(string method, string? requestUri, int statusCode, long durationMs)
+    public void HttpServerRequestFinished(string method, string requestUri, int statusCode, long durationMs)
     {
         // trim query parameters
         if (requestUri?.Contains('?') == true)
@@ -445,15 +324,15 @@ public class DiagnosticsConfig : IDisposable
 
         this.httpServerRequestCounter.Add(
             1,
-            new KeyValuePair<string, object?>("http.method", method),
-            new KeyValuePair<string, object?>("http.request.uri", requestUri),
-            new KeyValuePair<string, object?>("http.response.status_code", statusCode));
+            new KeyValuePair<string, object>("http.method", method),
+            new KeyValuePair<string, object>("http.request.uri", requestUri),
+            new KeyValuePair<string, object>("http.response.status_code", statusCode));
 
         this.httpServerRequestLatencyCounter.Add(
             durationMs,
-            new KeyValuePair<string, object?>("http.method", method),
-            new KeyValuePair<string, object?>("http.request.uri", requestUri),
-            new KeyValuePair<string, object?>("http.response.status_code", statusCode));
+            new KeyValuePair<string, object>("http.method", method),
+            new KeyValuePair<string, object>("http.request.uri", requestUri),
+            new KeyValuePair<string, object>("http.response.status_code", statusCode));
     }
 
     #endregion
@@ -479,10 +358,10 @@ public class DiagnosticsConfig : IDisposable
         {
             this.scheduledTasksCounter.Add(
                 1,
-                new KeyValuePair<string, object?>("name", name),
-                new KeyValuePair<string, object?>("filePath", filePath),
-                new KeyValuePair<string, object?>("methodName", memberName),
-                new KeyValuePair<string, object?>("lineNumber", lineNumber));
+                new KeyValuePair<string, object>("name", name),
+                new KeyValuePair<string, object>("filePath", filePath),
+                new KeyValuePair<string, object>("methodName", memberName),
+                new KeyValuePair<string, object>("lineNumber", lineNumber));
             return trackingId;
         }
 
@@ -501,11 +380,11 @@ public class DiagnosticsConfig : IDisposable
             var durationInMs = (long)(DateTime.UtcNow - creationTime).TotalMilliseconds;
             this.finishedTasksCounter.Add(
                 1,
-                new KeyValuePair<string, object?>("name", name),
-                new KeyValuePair<string, object?>("durationMS", durationInMs),
-                new KeyValuePair<string, object?>("filePath", filePath),
-                new KeyValuePair<string, object?>("methodName", memberName),
-                new KeyValuePair<string, object?>("lineNumber", lineNumber));
+                new KeyValuePair<string, object>("name", name),
+                new KeyValuePair<string, object>("durationMS", durationInMs),
+                new KeyValuePair<string, object>("filePath", filePath),
+                new KeyValuePair<string, object>("methodName", memberName),
+                new KeyValuePair<string, object>("lineNumber", lineNumber));
         }
     }
 
@@ -522,15 +401,15 @@ public class DiagnosticsConfig : IDisposable
             var durationInMs = (long)(DateTime.UtcNow - creationTime).TotalMilliseconds;
             this.failedTasksCounter.Add(
                 1,
-                new KeyValuePair<string, object?>("name", name),
-                new KeyValuePair<string, object?>("durationMS", durationInMs),
-                new KeyValuePair<string, object?>("error",
+                new KeyValuePair<string, object>("name", name),
+                new KeyValuePair<string, object>("durationMS", durationInMs),
+                new KeyValuePair<string, object>("error",
                     string.IsNullOrWhiteSpace(error)
                         ? "none"
                         : error),
-                new KeyValuePair<string, object?>("filePath", filePath),
-                new KeyValuePair<string, object?>("methodName", memberName),
-                new KeyValuePair<string, object?>("lineNumber", lineNumber));
+                new KeyValuePair<string, object>("filePath", filePath),
+                new KeyValuePair<string, object>("methodName", memberName),
+                new KeyValuePair<string, object>("lineNumber", lineNumber));
         }
     }
 
@@ -560,10 +439,10 @@ public class DiagnosticsConfig : IDisposable
         {
             this.enterLockCounter.Add(
                 1,
-                new KeyValuePair<string, object?>("name", name),
-                new KeyValuePair<string, object?>("filePath", filePath),
-                new KeyValuePair<string, object?>("methodName", memberName),
-                new KeyValuePair<string, object?>("lineNumber", lineNumber));
+                new KeyValuePair<string, object>("name", name),
+                new KeyValuePair<string, object>("filePath", filePath),
+                new KeyValuePair<string, object>("methodName", memberName),
+                new KeyValuePair<string, object>("lineNumber", lineNumber));
             return trackingId;
         }
 
@@ -582,11 +461,11 @@ public class DiagnosticsConfig : IDisposable
             var durationInMs = (long)(DateTime.UtcNow - creationTime).TotalMilliseconds;
             this.exitLockCounter.Add(
                 1,
-                new KeyValuePair<string, object?>("name", name),
-                new KeyValuePair<string, object?>("durationMS", durationInMs),
-                new KeyValuePair<string, object?>("filePath", filePath),
-                new KeyValuePair<string, object?>("methodName", memberName),
-                new KeyValuePair<string, object?>("lineNumber", lineNumber));
+                new KeyValuePair<string, object>("name", name),
+                new KeyValuePair<string, object>("durationMS", durationInMs),
+                new KeyValuePair<string, object>("filePath", filePath),
+                new KeyValuePair<string, object>("methodName", memberName),
+                new KeyValuePair<string, object>("lineNumber", lineNumber));
         }
     }
 
@@ -614,11 +493,11 @@ public class DiagnosticsConfig : IDisposable
     {
         this.cacheUpsertCounter.Add(
             1,
-            new KeyValuePair<string, object?>("key", cacheKey),
-            new KeyValuePair<string, object?>("expirationSpan", expirationSpan.ToString()),
-            new KeyValuePair<string, object?>("filePath", filePath),
-            new KeyValuePair<string, object?>("methodName", memberName),
-            new KeyValuePair<string, object?>("lineNumber", lineNumber));
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("expirationSpan", expirationSpan.ToString()),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
     }
 
     public void OnCacheHit(
@@ -629,10 +508,10 @@ public class DiagnosticsConfig : IDisposable
     {
         this.cacheHitCounter.Add(
             1,
-            new KeyValuePair<string, object?>("key", cacheKey),
-            new KeyValuePair<string, object?>("filePath", filePath),
-            new KeyValuePair<string, object?>("methodName", memberName),
-            new KeyValuePair<string, object?>("lineNumber", lineNumber));
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
     }
 
     public void OnCacheMiss(
@@ -643,10 +522,10 @@ public class DiagnosticsConfig : IDisposable
     {
         this.cacheMissCounter.Add(
             1,
-            new KeyValuePair<string, object?>("key", cacheKey),
-            new KeyValuePair<string, object?>("filePath", filePath),
-            new KeyValuePair<string, object?>("methodName", memberName),
-            new KeyValuePair<string, object?>("lineNumber", lineNumber));
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
     }
 
     public void OnCacheExpired(
@@ -657,25 +536,43 @@ public class DiagnosticsConfig : IDisposable
     {
         this.cacheExpiredCounter.Add(
             1,
-            new KeyValuePair<string, object?>("key", cacheKey),
-            new KeyValuePair<string, object?>("filePath", filePath),
-            new KeyValuePair<string, object?>("methodName", memberName),
-            new KeyValuePair<string, object?>("lineNumber", lineNumber));
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
+    }
+
+    public void OnCacheRemoved(
+        string cacheKey,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        this.cacheRemovedCounter.Add(
+            1,
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
+    }
+
+    public void OnCacheError(
+        string cacheKey,
+        string error,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        this.cacheErrorCounter.Add(
+            1,
+            new KeyValuePair<string, object>("key", cacheKey),
+            new KeyValuePair<string, object>("error", error),
+            new KeyValuePair<string, object>("filePath", filePath),
+            new KeyValuePair<string, object>("methodName", memberName),
+            new KeyValuePair<string, object>("lineNumber", lineNumber));
     }
 
     #endregion
-
-
-    /// <summary>
-    /// Dispose resources embedded in this instance.
-    /// </summary>
-    public void Dispose()
-    {
-        this.LoggerFactory.Dispose();
-        this.MeterProvider.Dispose();
-        this.TracerProvider.Dispose();
-        this.Meter.Dispose();
-    }
 
     private void InjectSpanContext(TelemetrySpan span, HttpRequestHeaders headers)
     {

@@ -19,7 +19,10 @@ namespace Common.Cache.Tests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class DependencyInjectionFeature : object, Xunit.IClassFixture<DependencyInjectionFeature.FixtureData>, Xunit.IAsyncLifetime
+    [NUnit.Framework.TestFixtureAttribute()]
+    [NUnit.Framework.DescriptionAttribute("dependency injection")]
+    [NUnit.Framework.FixtureLifeCycleAttribute(NUnit.Framework.LifeCycle.InstancePerTestCase)]
+    public partial class DependencyInjectionFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -30,24 +33,20 @@ namespace Common.Cache.Tests.Features
                 "unity,\r\nto register hybridcache,\r\nso that I can use the cache provider in my app" +
                 "lication.", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
-        private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "DependencyInjection.feature"
 #line hidden
         
-        public DependencyInjectionFeature(DependencyInjectionFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
-        {
-            this._testOutputHelper = testOutputHelper;
-        }
-        
+        [NUnit.Framework.OneTimeSetUpAttribute()]
         public static async System.Threading.Tasks.Task FeatureSetupAsync()
         {
         }
         
+        [NUnit.Framework.OneTimeTearDownAttribute()]
         public static async System.Threading.Tasks.Task FeatureTearDownAsync()
         {
         }
         
+        [NUnit.Framework.SetUpAttribute()]
         public async System.Threading.Tasks.Task TestInitializeAsync()
         {
             testRunner = global::Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(featureHint: featureInfo);
@@ -62,6 +61,7 @@ namespace Common.Cache.Tests.Features
             }
         }
         
+        [NUnit.Framework.TearDownAttribute()]
         public async System.Threading.Tasks.Task TestTearDownAsync()
         {
             await testRunner.OnScenarioEndAsync();
@@ -71,7 +71,7 @@ namespace Common.Cache.Tests.Features
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<NUnit.Framework.TestContext>(NUnit.Framework.TestContext.CurrentContext);
         }
         
         public async System.Threading.Tasks.Task ScenarioStartAsync()
@@ -84,19 +84,8 @@ namespace Common.Cache.Tests.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-        {
-            await this.TestInitializeAsync();
-        }
-        
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-        {
-            await this.TestTearDownAsync();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Register hybrid cache provider with service collection")]
-        [Xunit.TraitAttribute("FeatureTitle", "dependency injection")]
-        [Xunit.TraitAttribute("Description", "Register hybrid cache provider with service collection")]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Register hybrid cache provider with service collection")]
         public async System.Threading.Tasks.Task RegisterHybridCacheProviderWithServiceCollection()
         {
             string[] tagsOfScenario = ((string[])(null));
@@ -125,9 +114,8 @@ this.ScenarioInitialize(scenarioInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Register hybrid cache provider with unity")]
-        [Xunit.TraitAttribute("FeatureTitle", "dependency injection")]
-        [Xunit.TraitAttribute("Description", "Register hybrid cache provider with unity")]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Register hybrid cache provider with unity")]
         public async System.Threading.Tasks.Task RegisterHybridCacheProviderWithUnity()
         {
             string[] tagsOfScenario = ((string[])(null));
@@ -154,22 +142,6 @@ this.ScenarioInitialize(scenarioInfo);
 #line hidden
             }
             await this.ScenarioCleanupAsync();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, Xunit.IAsyncLifetime
-        {
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-            {
-                await DependencyInjectionFeature.FeatureSetupAsync();
-            }
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-            {
-                await DependencyInjectionFeature.FeatureTearDownAsync();
-            }
         }
     }
 }

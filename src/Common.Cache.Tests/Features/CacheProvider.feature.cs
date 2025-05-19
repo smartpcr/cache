@@ -19,7 +19,10 @@ namespace Common.Cache.Tests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class CacheProviderFeature : object, Xunit.IClassFixture<CacheProviderFeature.FixtureData>, Xunit.IAsyncLifetime
+    [NUnit.Framework.TestFixtureAttribute()]
+    [NUnit.Framework.DescriptionAttribute("cache provider")]
+    [NUnit.Framework.FixtureLifeCycleAttribute(NUnit.Framework.LifeCycle.InstancePerTestCase)]
+    public partial class CacheProviderFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -28,24 +31,20 @@ namespace Common.Cache.Tests.Features
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "cache provider", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
-        private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "CacheProvider.feature"
 #line hidden
         
-        public CacheProviderFeature(CacheProviderFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
-        {
-            this._testOutputHelper = testOutputHelper;
-        }
-        
+        [NUnit.Framework.OneTimeSetUpAttribute()]
         public static async System.Threading.Tasks.Task FeatureSetupAsync()
         {
         }
         
+        [NUnit.Framework.OneTimeTearDownAttribute()]
         public static async System.Threading.Tasks.Task FeatureTearDownAsync()
         {
         }
         
+        [NUnit.Framework.SetUpAttribute()]
         public async System.Threading.Tasks.Task TestInitializeAsync()
         {
             testRunner = global::Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(featureHint: featureInfo);
@@ -60,6 +59,7 @@ namespace Common.Cache.Tests.Features
             }
         }
         
+        [NUnit.Framework.TearDownAttribute()]
         public async System.Threading.Tasks.Task TestTearDownAsync()
         {
             await testRunner.OnScenarioEndAsync();
@@ -69,7 +69,7 @@ namespace Common.Cache.Tests.Features
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<NUnit.Framework.TestContext>(NUnit.Framework.TestContext.CurrentContext);
         }
         
         public async System.Threading.Tasks.Task ScenarioStartAsync()
@@ -82,30 +82,19 @@ namespace Common.Cache.Tests.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-        {
-            await this.TestInitializeAsync();
-        }
-        
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-        {
-            await this.TestTearDownAsync();
-        }
-        
-        [Xunit.SkippableTheoryAttribute(DisplayName="simple cache scenario")]
-        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
-        [Xunit.TraitAttribute("Description", "simple cache scenario")]
-        [Xunit.TraitAttribute("Category", "prod")]
-        [Xunit.InlineDataAttribute("Memory", "key_1", "0", new string[0])]
-        [Xunit.InlineDataAttribute("Memory", "key_2", "128", new string[0])]
-        [Xunit.InlineDataAttribute("Memory", "key_3", "1024", new string[0])]
-        [Xunit.InlineDataAttribute("Memory", "key_4", "16348", new string[0])]
-        [Xunit.InlineDataAttribute("Memory", "Key_5", "5242880", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_6", "0", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_7", "128", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_8", "1024", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "key_9", "16348", new string[0])]
-        [Xunit.InlineDataAttribute("Csv", "Key_10", "5242880", new string[0])]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("simple cache scenario")]
+        [NUnit.Framework.CategoryAttribute("prod")]
+        [NUnit.Framework.TestCaseAttribute("Memory", "key_1", "0", null)]
+        [NUnit.Framework.TestCaseAttribute("Memory", "key_2", "128", null)]
+        [NUnit.Framework.TestCaseAttribute("Memory", "key_3", "1024", null)]
+        [NUnit.Framework.TestCaseAttribute("Memory", "key_4", "16348", null)]
+        [NUnit.Framework.TestCaseAttribute("Memory", "Key_5", "5242880", null)]
+        [NUnit.Framework.TestCaseAttribute("Csv", "key_6", "0", null)]
+        [NUnit.Framework.TestCaseAttribute("Csv", "key_7", "128", null)]
+        [NUnit.Framework.TestCaseAttribute("Csv", "key_8", "1024", null)]
+        [NUnit.Framework.TestCaseAttribute("Csv", "key_9", "16348", null)]
+        [NUnit.Framework.TestCaseAttribute("Csv", "Key_10", "5242880", null)]
         public async System.Threading.Tasks.Task SimpleCacheScenario(string cacheProvider, string key, string size, string[] exampleTags)
         {
             string[] @__tags = new string[] {
@@ -173,11 +162,10 @@ namespace Common.Cache.Tests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableTheoryAttribute(DisplayName="hybrid cache scenario")]
-        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
-        [Xunit.TraitAttribute("Description", "hybrid cache scenario")]
-        [Xunit.TraitAttribute("Category", "prod")]
-        [Xunit.InlineDataAttribute("C001", "100", "Joe", "Doe", "1990-01-01", new string[0])]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("hybrid cache scenario")]
+        [NUnit.Framework.CategoryAttribute("prod")]
+        [NUnit.Framework.TestCaseAttribute("C001", "100", "Joe", "Doe", "1990-01-01", null)]
         public async System.Threading.Tasks.Task HybridCacheScenario(string key, string id, string firstName, string lastName, string birthDay, string[] exampleTags)
         {
             string[] @__tags = new string[] {
@@ -255,11 +243,10 @@ namespace Common.Cache.Tests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableTheoryAttribute(DisplayName="windows registry cache scenario")]
-        [Xunit.TraitAttribute("FeatureTitle", "cache provider")]
-        [Xunit.TraitAttribute("Description", "windows registry cache scenario")]
-        [Xunit.TraitAttribute("Category", "prod")]
-        [Xunit.InlineDataAttribute("C021", "123", "Joe", "Doe", "1990-01-01", new string[0])]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("windows registry cache scenario")]
+        [NUnit.Framework.CategoryAttribute("prod")]
+        [NUnit.Framework.TestCaseAttribute("C021", "123", "Joe", "Doe", "1990-01-01", null)]
         public async System.Threading.Tasks.Task WindowsRegistryCacheScenario(string key, string id, string firstName, string lastName, string birthDay, string[] exampleTags)
         {
             string[] @__tags = new string[] {
@@ -335,22 +322,6 @@ namespace Common.Cache.Tests.Features
 #line hidden
             }
             await this.ScenarioCleanupAsync();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, Xunit.IAsyncLifetime
-        {
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-            {
-                await CacheProviderFeature.FeatureSetupAsync();
-            }
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-            {
-                await CacheProviderFeature.FeatureTearDownAsync();
-            }
         }
     }
 }

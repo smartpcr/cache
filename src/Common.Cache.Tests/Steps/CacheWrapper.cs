@@ -7,8 +7,10 @@
 namespace Common.Cache.Tests.Steps
 {
     using System;
+    using System.Buffers;
     using System.Threading.Tasks;
     using Common.Cache.Serialization;
+    using FluentAssertions;
     using Microsoft.Extensions.Caching.Distributed;
     using Microsoft.Extensions.Caching.Hybrid;
     using Microsoft.Extensions.Caching.Memory;
@@ -18,14 +20,12 @@ namespace Common.Cache.Tests.Steps
     public class CacheWrapper
     {
         private readonly CacheProviderType cacheProviderType;
-        private readonly ICachedItemSerializer serializer;
         private readonly IServiceProvider serviceProvider;
         private readonly byte[]? nullValue = null;
 
         public CacheWrapper(ScenarioContext context, CacheProviderType cacheProviderType)
         {
             this.cacheProviderType = cacheProviderType;
-            this.serializer = new DefaultCachedItemSerializer(null);
             this.serviceProvider = context.Get<IServiceCollection>().BuildServiceProvider();
         }
 
@@ -55,6 +55,9 @@ namespace Common.Cache.Tests.Steps
         public async Task<T?> GetAsync<T>(string key) where T : class, new()
         {
             T? result = null;
+            var serializerFactory = new SerializerFactory(SerializerType.Binary);
+            var created = serializerFactory.TryCreateSerializer<T>(out var serializer);
+            created.Should().BeTrue();
             switch (this.cacheProviderType)
             {
                 case CacheProviderType.Memory:
@@ -65,7 +68,7 @@ namespace Common.Cache.Tests.Steps
                 case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
                     var stored = await distributedCache.GetAsync(key);
-                    result = this.serializer.Deserialize<T>(stored!);
+                    result = serializer.Deserialize(new ReadOnlySequence<byte>(stored));
                     break;
                 case CacheProviderType.Hybrid:
                     var hybridCache = this.serviceProvider.GetRequiredService<HybridCache>();
@@ -107,6 +110,11 @@ namespace Common.Cache.Tests.Steps
 
         public async Task SetAsync<T>(string key, T value, TimeSpan ttl)
         {
+            var serializerFactory = new SerializerFactory(SerializerType.Binary);
+            var created = serializerFactory.TryCreateSerializer<T>(out var serializer);
+            created.Should().BeTrue();
+            using var writeBuffer = new PoolBufferWriter();
+
             switch (this.cacheProviderType)
             {
                 case CacheProviderType.Memory:
@@ -119,7 +127,8 @@ namespace Common.Cache.Tests.Steps
                 case CacheProviderType.Csv:
                 case CacheProviderType.WindowsRegistry:
                     var distributedCache = this.serviceProvider.GetRequiredService<IDistributedCache>();
-                    var bytes = await this.serializer.SerializeAsync(value);
+                    serializer.Serialize(value, writeBuffer);
+                    var bytes = writeBuffer.ToArray();
                     await distributedCache.SetAsync(key, bytes, new DistributedCacheEntryOptions()
                     {
                         AbsoluteExpirationRelativeToNow = ttl
